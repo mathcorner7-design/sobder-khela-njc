@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>চোখের খেলা শব্দের মেলা - কালীপূজা বিশেষ</title>
+<style>
+  :root {
+    --bg-dark: #120303;
+    --card-bg: #220808;
+    --gold: #f5af19;
+    --crimson: #c31432;
+    --text-light: #fffdf5;
+    --green-correct: #27ae60;
+    --container-max: 500px;
+    --grid-cols: repeat(2, 1fr);
+    --base-font: 16px;
+  }
+
+  /* ডিভাইস মোড অনুযায়ী ডায়নামিক সিএসএস ক্লাস */
+  body.mode-mobile {
+    --container-max: 480px;
+    --grid-cols: repeat(2, 1fr);
+    --base-font: 15px;
+  }
+  body.mode-tablet {
+    --container-max: 760px;
+    --grid-cols: repeat(4, 1fr);
+    --base-font: 17px;
+  }
+  body.mode-tv {
+    --container-max: 1100px;
+    --grid-cols: repeat(4, 1fr);
+    --base-font: 20px;
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background: radial-gradient(circle at top, #2b0808 0%, #0d0101 100%);
+    color: var(--text-light);
+    min-height: 100vh;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: var(--base-font);
+    transition: font-size 0.2s ease;
+  }
+  .app-container {
+    width: 100%;
+    max-width: var(--container-max);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    position: relative;
+    transition: max-width 0.25s ease;
+  }
+  header {
+    text-align: center;
+    background: linear-gradient(135deg, rgba(195,20,50,0.35), rgba(245,175,25,0.2));
+    border: 1.5px solid var(--gold);
+    border-radius: 12px;
+    padding: 10px;
+    box-shadow: 0 4px 15px rgba(245, 175, 25, 0.15);
+    position: relative;
+  }
+  header h1 {
+    font-size: 1.35rem;
+    color: var(--gold);
+    text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+  }
+  header p {
+    font-size: 0.82rem;
+    color: #f1dfbf;
+  }
+  .mode-switch-btn {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    background: rgba(245, 175, 25, 0.2);
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid #4d1818;
+    border-radius: 12px;
+    padding: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  }
+  .input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  input, select {
+    background: #331010;
+    border: 1.5px solid #792525;
+    border-radius: 8px;
+    padding: 10px;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+  }
+  input:focus, select:focus {
+    border-color: var(--gold);
+  }
+  .btn {
+    background: linear-gradient(135deg, #f5af19, #e65c00);
+    color: #1a0505;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    width: 100%;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+    touch-action: manipulation;
+  }
+  .btn:active {
+    transform: scale(0.97);
+  }
+  .btn-start-answer {
+    background: linear-gradient(135deg, #00b09b, #96c93d);
+    color: #052b0d;
+  }
+  .btn-warning {
+    background: linear-gradient(135deg, #f39c12, #d35400);
+    color: #fff;
+  }
+  .btn-danger {
+    background: linear-gradient(135deg, #e53935, #b71c1c);
+    color: #fff;
+  }
+  .btn-blue {
+    background: linear-gradient(135deg, #2193b0, #6dd5ed);
+    color: #04202e;
+  }
+  .timer-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #170404;
+    border: 1.5px dashed var(--gold);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+  }
+  .phase-badge {
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--gold);
+  }
+  .timer-circle {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #fff;
+    background: var(--crimson);
+    padding: 6px 14px;
+    min-width: 90px;
+    text-align: center;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(195,20,50,0.8);
+  }
+  .timer-circle.heartbeat-active {
+    animation: heartPulse 0.8s infinite;
+  }
+  @keyframes heartPulse {
+    0% { transform: scale(1); }
+    30% { transform: scale(1.1); background: #ff0033; }
+    50% { transform: scale(1); }
+    70% { transform: scale(1.08); background: #ff0033; }
+    100% { transform: scale(1); }
+  }
+  .words-grid {
+    display: grid;
+    grid-template-columns: var(--grid-cols);
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .word-tile {
+    background: #381212;
+    border: 1.5px solid #632020;
+    border-radius: 8px;
+    padding: 14px 6px;
+    font-size: 1.25rem;
+    font-weight: bold;
+    text-align: center;
+    user-select: none;
+    cursor: pointer;
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffeedd;
+  }
+  .word-tile.found {
+    background: var(--green-correct) !important;
+    border-color: #a8f0c6 !important;
+    color: #ffffff !important;
+    transform: scale(1.02);
+  }
+  .live-score-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--gold);
+    background: #190505;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #4a1515;
+    margin-top: 8px;
+  }
+  .tab-group {
+    display: flex;
+    gap: 6px;
+  }
+  .tab-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border: none;
+    background: #331010;
+    color: #ccc;
+    font-weight: bold;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  .tab-btn.active {
+    background: var(--gold);
+    color: #120404;
+  }
+  .rank-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 8px;
+  }
+  .rank-table th, .rank-table td {
+    padding: 8px 4px;
+    text-align: center;
+    border-bottom: 1px solid #3d1414;
+  }
+  .rank-table th {
+    color: var(--gold);
+    font-size: 0.8rem;
+  }
+  .rank-table tr.selected {
+    background-color: rgba(245, 175, 25, 0.25) !important;
+    outline: 1.5px solid var(--gold);
+  }
+  .rank-table tr {
+    cursor: pointer;
+  }
+  .winner-card {
+    background: linear-gradient(135deg, rgba(46, 12, 12, 0.9), rgba(18, 4, 4, 0.95));
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 10px;
+    border: 1.5px solid #5a1919;
+  }
+  .winner-card.gold { border-color: #ffd700; }
+  .winner-card.silver { border-color: #c0c0c0; }
+  .winner-card.bronze { border-color: #cd7f32; }
+
+  #appToast {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(18, 3, 3, 0.95);
+    border: 1.5px solid var(--gold);
+    color: #fffdf5;
+    padding: 10px 18px;
+    border-radius: 25px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.8);
+    z-index: 9999;
+    display: none;
+    text-align: center;
+    max-width: 90%;
+  }
+
+  /* প্রারম্ভিক ডিভাইস চয়ন মডাল */
+  #deviceModal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.88);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20000;
+    padding: 15px;
+  }
+  .device-box {
+    background: #250909;
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    padding: 20px;
+    width: 100%;
+    max-width: 380px;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(245,175,25,0.3);
+  }
+  .device-btn {
+    background: #381212;
+    border: 1.5px solid #792525;
+    color: #fff;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .device-btn:hover, .device-btn:active {
+    background: var(--gold);
+    color: #140303;
+    border-color: var(--gold);
+  }
+
+  #confirmModal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    padding: 15px;
+  }
+  .modal-box {
+    background: #240a0a;
+    border: 1.5px solid var(--gold);
+    border-radius: 12px;
+    padding: 15px;
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+  }
+  .modal-box p {
+    font-size: 0.95rem;
+    color: #fffdf5;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 8px;
+  }
+</style>
+</head>
+<body class="mode-mobile">
+
+<!-- প্রারম্ভিক স্ক্রিন নির্বাচন পপআপ -->
+<div id="deviceModal">
+  <div class="device-box">
+    <h2 style="color: var(--gold); font-size: 1.25rem; margin-bottom: 6px;">📺 কোন স্ক্রিনে চালাবেন?</h2>
+    <p style="font-size: 0.82rem; color: #e0d0b0; margin-bottom: 15px;">আপনার ডিভাইসের ধরন বেছে নিন:</p>
+    
+    <button class="device-btn" onclick="applyScreenMode('mobile')">📱 মোবাইল ফোন (Mobile)</button>
+    <button class="device-btn" onclick="applyScreenMode('tablet')">📟 ট্যাবলেট (Tablet / iPad)</button>
+    <button class="device-btn" onclick="applyScreenMode('tv')">💻 ল্যাপটপ / টিভি / প্রজেক্টর</button>
+  </div>
+</div>
+
+<div class="app-container">
+  <div id="appToast"></div>
+
+  <div id="confirmModal">
+    <div class="modal-box">
+      <p id="confirmModalText">আপনি কি নিশ্চিত?</p>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="confirmModalYes">হ্যাঁ</button>
+        <button class="btn" id="confirmModalNo" onclick="closeConfirmModal()">না</button>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <button class="mode-switch-btn" onclick="openDeviceModal()">🖥️</button>
+    <h1>🪔 চোখের খেলা শব্দের মেলা 🪔</h1>
+    <p>কালীপূজা স্পেশাল মেমরি কম্পিটিশন (৫০ সেট | ৮ শব্দ)</p>
+  </header>
+
+  <div class="tab-group">
+    <button class="tab-btn active" id="tabGameBtn" onclick="switchView('game')">🎮 গেম বোর্ড</button>
+    <button class="tab-btn" id="tabRankBtn" onclick="switchView('rank')">📋 লিডারবোর্ড</button>
+    <button class="tab-btn" id="tabTieBtn" onclick="switchView('tie')">⚔️ টাই বোর্ড</button>
+    <button class="tab-btn" id="tabFinalBtn" onclick="switchView('final')">🏆 চূড়ান্ত ফলাফল</button>
+  </div>
+
+  <!-- ১. গেম ভিউ -->
+  <div id="gameView" class="card">
+    <div class="input-row">
+      <input type="text" id="pName" style="flex: 2;" placeholder="প্রতিযোগীর নাম..." autocomplete="off">
+      <input type="number" id="pAge" style="flex: 1;" placeholder="বয়স" min="1" max="100">
+      <select id="setSelector" style="flex: 1.2;" onchange="onSetChange()"></select>
+    </div>
+
+    <div class="timer-banner">
+      <div>
+        <div id="phaseText" class="phase-badge">রাউন্ড রেডি</div>
+        <div style="font-size:0.75rem; color:#aaa;" id="subPhaseText">নাম লিখে পড়া শুরু করুন</div>
+      </div>
+      <div id="timerNum" class="timer-circle">--</div>
+    </div>
+
+    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+      <button class="btn" id="btnMemorize" onclick="startMemorizePhase()">পড়া শুরু (২০ সে.)</button>
+      <button class="btn btn-start-answer" id="btnRecall" style="display: none;" onclick="startRecallPhase()">উত্তর শুরু (৩০ সে.)</button>
+      <button class="btn btn-warning" id="btnPause" style="width: auto; padding: 0 12px; display: none;" onclick="togglePause()">থামুন</button>
+      <button class="btn btn-danger" style="width: auto; padding: 0 12px;" onclick="resetCurrentRound()">রিসেট</button>
+    </div>
+
+    <div class="live-score-bar">
+      <span>সঠিক শব্দ: <span id="liveScore" style="font-size: 1.25rem; color: #27ae60;">0</span> / 8</span>
+      <span id="timeTakenText" style="font-size: 0.9rem; color: #ffeb99;">সময়: --</span>
+    </div>
+
+    <div class="words-grid" id="wordsContainer"></div>
+
+    <button class="btn btn-blue" id="btnSaveScore" style="margin-top: 12px; display: none;" onclick="savePlayerScore()">স্কোর সেভ ও সমাপ্ত করুন</button>
+  </div>
+
+  <!-- ২. মূল লিডারবোর্ড ভিউ -->
+  <div id="rankView" class="card" style="display: none;">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h3 style="color: var(--gold); font-size: 1rem;">মূল লিডারবোর্ড</h3>
+      <button class="btn btn-warning" style="width:auto; padding:6px 10px; font-size:0.75rem;" onclick="sendSelectedToTieBoard()">Send to Tie Round ⚔️</button>
+    </div>
+    <p style="font-size:0.72rem; color:#bbb; margin: 4px 0;">টাই হলে সিলেক্ট করে টাই-বোর্ডে পাঠান, অথবা সরাসরি পর্যায়ক্রমে স্থান দিন (১ম ➔ ২য় ➔ ৩য়):</p>
+
+    <table class="rank-table">
+      <thead>
+        <tr>
+          <th>সিলেক্ট</th>
+          <th>ক্রম</th>
+          <th>নাম (বয়স)</th>
+          <th>সেট</th>
+          <th>স্কোর</th>
+          <th>সময়</th>
+          <th>সরাসরি স্থান দিন</th>
+        </tr>
+      </thead>
+      <tbody id="rankTableBody"></tbody>
+    </table>
+
+    <button class="btn btn-danger" style="margin-top: 15px;" onclick="promptClearAllData()">সব ডাটা মুছুন</button>
+  </div>
+
+  <!-- ৩. টাই বোর্ড ভিউ -->
+  <div id="tieView" class="card" style="display: none;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 4px;">
+      <h3 style="color: var(--gold); font-size: 1rem;">⚔️ টাই-ব্রেকার রুম</h3>
+      <button class="btn btn-warning" style="width:auto; padding:6px 8px; font-size:0.75rem;" onclick="reTieSelectedPlayers()">আবার টাই খেলান (Re-Tie) 🔄</button>
+    </div>
+    <p style="font-size:0.75rem; color:#ffeb99; margin-bottom:8px;">সিলেক্ট করে পুনরায় টাই খেলান অথবা ফলাফল দেখে স্থান চূড়ান্ত করুন:</p>
+
+    <table class="rank-table">
+      <thead>
+        <tr>
+          <th>সিলেক্ট</th>
+          <th>নাম</th>
+          <th>টাই স্কোর</th>
+          <th>টাই সময়</th>
+          <th>খেলা</th>
+          <th>চূড়ান্ত স্থান</th>
+        </tr>
+      </thead>
+      <tbody id="tieTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- ৪. চূড়ান্ত ফলাফল ভিউ -->
+  <div id="finalView" class="card" style="display: none;">
+    <h3 style="color: var(--gold); text-align: center; margin-bottom: 10px;">🌟 চূড়ান্ত ফলাফল ও বিজয়ী তালিকা 🌟</h3>
+    <div id="finalWinnersContainer"></div>
+  </div>
+</div>
+
+<script>
+/* স্ক্রিন মোড নির্বাচন লজিক */
+function applyScreenMode(mode) {
+  document.body.className = `mode-${mode}`;
+  document.getElementById('deviceModal').style.display = 'none';
+  localStorage.setItem('khela_screen_mode', mode);
+}
+
+function openDeviceModal() {
+  document.getElementById('deviceModal').style.display = 'flex';
+}
+
+/* ৪০০টি চেনা, বহুল ব্যবহৃত ২-৩ অক্ষরের বাংলা শব্দ (৫০টি মিক্সড সেট) */
+const ALL_SETS = [
+  /* সেট ১  */ ["আকাশ", "বাতাস", "গোলাপ", "কলম", "থালা", "সকাল", "নদী", "টাকা"],
+  /* সেট ২  */ ["সূর্য", "বৃষ্টি", "টগর", "খাতা", "বাটি", "দুপুর", "পাহাড়", "পয়সা"],
+  /* সেট ৩  */ ["মেঘ", "তুফান", "জবা", "বই", "গ্লাস", "রাত", "সাগর", "দোকান"],
+  /* সেট ৪  */ ["চাঁদ", "বিদ্যুৎ", "পলাশ", "কাগজ", "চামচ", "সন্ধ্যা", "ঝরনা", "বাজার"],
+  /* সেট ৫  */ ["তারা", "আম", "কমল", "দোয়াত", "কড়াই", "ভোর", "মাঠ", "শহর"],
+  /* সেট ৬  */ ["আলো", "জাম", "শিউলি", "রবার", "হাতা", "ছায়া", "বন", "গ্রাম"],
+  /* সেট ৭  */ ["হাওয়া", "লিচু", "বেলি", "পেন্সিল", "বালতি", "রোদ", "পথ", "মেলা"],
+  /* সেট ৮  */ ["ঝড়", "তাল", "মল্লিকা", "স্কেল", "উনুন", "শিশির", "ঘাট", "ঘর"],
+  /* সেট ৯  */ ["কুঁড়ি", "বেল", "চম্পা", "রং", "চৌকি", "কুয়াশা", "ঢেউ", "পথিক"],
+  /* সেট ১০ */ ["মাটি", "কলা", "গাঁদা", "চক", "খাট", "গ্রীষ্ম", "পুকুর", "হাট"],
+  /* সেট ১১ */ ["জল", "ভাত", "জামা", "ঘড়ি", "হরিণ", "গান", "দোয়েল", "সাহস"],
+  /* সেট ১২ */ ["দুধ", "ডাল", "ধুতি", "আয়না", "বাঘ", "সুর", "ময়ূর", "আনন্দ"],
+  /* সেট ১৩ */ ["চা", "মাছ", "শাড়ি", "তালা", "সিংহ", "তাল", "টিয়া", "উৎসব"],
+  /* সেট ১৪ */ ["ঘি", "মাংস", "চাদর", "চাবি", "হাতি", "নাচ", "কোকিল", "খুশি"],
+  /* সেট ১৫ */ ["রুটি", "ডিম", "শাল", "ছাতা", "ঘোড়া", "নাটক", "চড়ুই", "হাসি"],
+  /* সেট ১৬ */ ["চিঁড়ে", "শাক", "লুঙ্গি", "জুতো", "ভাল্লুক", "বাঁশি", "শালিক", "বীর"],
+  /* সেট ১৭ */ ["মুড়ি", "ঝোল", "পাঞ্জাবি", "লাঠি", "শেয়াল", "ঢোল", "বুলবুল", "জয়"],
+  /* সেট ১৮ */ ["দই", "চাটনি", "গেঞ্জি", "দড়ি", "বানর", "তবলা", "ঘুঘু", "গর্ব"],
+  /* সেট ১৯ */ ["মাখন", "পোলাও", "পর্দা", "মই", "খরগোশ", "সেতার", "বক", "শক্তি"],
+  /* সেট ২০ */ ["ছানা", "পায়েস", "বালিশ", "ঝুড়ি", "চিতা", "সানাই", "চিল", "আশা"],
+  /* সেট ২১ */ ["মিষ্টি", "চোখ", "গাড়ি", "সোনা", "ফুটবল", "রাজা", "দরজা", "প্রেম"],
+  /* সেট ২২ */ ["লাড্ডু", "কান", "নৌকা", "রুপো", "ক্রিকেট", "রানি", "জানালা", "মমতা"],
+  /* সেট ২৩ */ ["জিভেগজা", "নাক", "ট্রেন", "তামা", "দাবা", "মন্ত্রী", "দেওয়াল", "স্নেহ"],
+  /* সেট ২৪ */ ["সন্দেশ", "মুখ", "জাহাজ", "লোহা", "লুডো", "সেনা", "ছাদ", "দয়া"],
+  /* সেট ২৫ */ ["জিলিপি", "হাত", "রিকশা", "কাঁসা", "ক্যারম", "পাইক", "সিঁড়ি", "ভক্তি"],
+  /* সেট ২৬ */ ["পেঁড়া", "পা", "ট্রাম", "পিতল", "লাটিম", "দূত", "উঠোন", "শ্রদ্ধা"],
+  /* সেট ২৭ */ ["নিমকি", "চুল", "ভ্যান", "হিরে", "ঘুড়ি", "রক্ষী", "বারান্দা", "শান্তি"],
+  /* সেট ২৮ */ ["রসগোল্লা", "গাল", "বাস", "মুক্তো", "মার্বেল", "মালী", "কার্নিশ", "মৈত্রী"],
+  /* সেট ২৯ */ ["লবঙ্গ", "মাথা", "সাইকেল", "মণি", "হাডুডু", "নাপিত", "ফটক", "ঐক্য"],
+  /* সেট ৩০ */ ["এলাচ", "বুক", "মোটর", "রত্ন", "দৌড়", "ধোপা", "খিলান", "মুক্তি"],
+  /* সেট ৩১ */ ["আলু", "ডাকঘর", "তীর", "চশমা", "ডাক্তার", "সাঁতার", "সূর্যোদয়", "কবিতা"],
+  /* সেট ৩২ */ ["পটল", "চিঠি", "ধনুক", "টুপি", "নার্স", "ব্যায়াম", "সূর্যাস্ত", "গল্প"],
+  /* সেট ৩৩ */ ["ঝিঙে", "খাম", "তলোয়ার", "মোজা", "ওষুধ", "লাফ", "জোয়ার", "ছড়া"],
+  /* সেট ৩৪ */ ["বেগুন", "টিকিট", "ঢাল", "ব্যাগ", "রোগী", "কুস্তি", "ভাটা", "উপন্যাস"],
+  /* সেট ৩৫ */ ["ঢ্যাঁড়শ", "সিল", "বর্শা", "রুমাল", "পথ্য", "হাঁটা", "গ্রহণ", "নাটিকা"],
+  /* সেট ৩৬ */ ["টমেটো", "বার্তা", "কামান", "ফিতে", "মলম", "কসরত", "পূর্ণিমা", "প্রবন্ধ"],
+  /* সেট ৩৭ */ ["গাজর", "তার", "বন্দুক", "চিরুনি", "তুলা", "প্রাণায়াম", "অমাবস্যা", "ছন্দ"],
+  /* সেট ৩৮ */ ["বাঁধাকপি", "খবর", "বারুদ", "সাবান", "ব্যান্ডেজ", "যোগ", "উল্কা", "অনুবাদ"],
+  /* সেট ৩৯ */ ["ফুলকপি", "কাগজপত্র", "গদা", "তেল", "সিরিঞ্জ", "ডন", "ধূমকেতু", "সাহিত্য"],
+  /* সেট ৪০ */ ["শসা", "চিঠিপত্র", "ত্রিশূল", "তোয়ালে", "থার্মোমিটার", "বৈঠক", "ছায়াপথ", "আবৃত্তি"],
+  /* সেট ৪১ */ ["অশোক", "খতিয়ান", "চুড়ি", "সরোদ", "খেজুর", "নীলকণ্ঠ", "বেজি", "চকমকি"],
+  /* সেট ৪২ */ ["মটর", "নূপুর", "এসরাজ", "পাহাড়িয়া", "বনবিড়াল", "চাতক", "খড়ম", "মহাজন"],
+  /* সেট ৪৩ */ ["কলমি", "তানপুরা", "বরফ", "ফিঙে", "হায়না", "পায়জোর", "মুড়িঘণ্ট", "বাউল"],
+  /* সেট ৪৪ */ ["বকুল", "ভেঁপু", "প্রবাল", "সারস", "গণ্ডার", "বালা", "কাঁচকলা", "ভাটিয়ালি"],
+  /* সেট ৪৫ */ ["কামিনী", "ঢাক", "মহাকাশ", "কাঠঠোকরা", "জলহস্তী", "বাজুবন্ধ", "পনির", "পুঁথি"],
+  /* সেট ৪৬ */ ["রঙ্গন", "কাড়া", "ঝরনাধারা", "হাড়গিলে", "বনরুই", "নাকছাবি", "হিংচে", "পুতুল"],
+  /* সেট ৪৭ */ ["করবী", "নাকাড়া", "দ্বীপ", "মাছরাঙা", "হনুমান", "কানপাশা", "ছানাপোড়া", "কবিগান"],
+  /* সেট ৪৮ */ ["মাধবী", "করতাল", "তুহিন", "পানকৌড়ি", "তিমি", "টিকলি", "গজা", "ঝুমুর"],
+  /* সেট ৪৯ */ ["অপরাজিতা", "খোল", "হৈমন্ত", "বাজপাখি", "ডলফিন", "ঝুমকো", "মিহিদানা", "ছৌ"],
+  /* সেট ৫০ */ ["দোলন", "মৃদঙ্গ", "মেঘমালা", "চিলপাখি", "হাঙর", "চন্দ্রহার", "আমড়া", "বটগাছ"]
+];
+
+let currentSetIndex = 0;
+let currentTimer = null;
+let currentPhase = 'idle';
+let isPaused = false;
+let currentScore = 0;
+let answeredWords = new Set();
+
+let recallStartTime = 0;
+let recallElapsedMs = 0;
+let lastTickSecond = -1;
+
+/* ডেটাস্টোর */
+let mainLeaderboard = JSON.parse(localStorage.getItem('khela_main_lb_v9') || '[]');
+let tieLeaderboard = JSON.parse(localStorage.getItem('khela_tie_lb_v9') || '[]');
+let finalWinners = JSON.parse(localStorage.getItem('khela_final_win_v9') || '[]');
+
+let selectedInMain = new Set();
+let selectedInTie = new Set();
+let activeTiePlayer = null;
+
+/* ইন-অ্যাপ নোটিফিকেশন */
+let toastTimeout = null;
+function showToast(msg) {
+  const t = document.getElementById('appToast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => {
+    t.style.display = 'none';
+  }, 2800);
+}
+
+function showConfirm(msg, onYes) {
+  const modal = document.getElementById('confirmModal');
+  document.getElementById('confirmModalText').textContent = msg;
+  const yesBtn = document.getElementById('confirmModalYes');
+  yesBtn.onclick = () => {
+    modal.style.display = 'none';
+    onYes();
+  };
+  modal.style.display = 'flex';
+}
+
+function closeConfirmModal() {
+  document.getElementById('confirmModal').style.display = 'none';
+}
+
+/* অডিও ইঞ্জিন */
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function ensureAudioReady() {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playClockTick() {
+  try {
+    ensureAudioReady();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.04);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + 0.04);
+  } catch(e) {}
+}
+
+function playHeartbeat() {
+  try {
+    ensureAudioReady();
+    const now = audioCtx.currentTime;
+    const osc1 = audioCtx.createOscillator();
+    const gain1 = audioCtx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(90, now);
+    osc1.frequency.exponentialRampToValueAtTime(45, now + 0.12);
+    gain1.gain.setValueAtTime(0.4, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+    osc1.connect(gain1);
+    gain1.connect(audioCtx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.12);
+
+    const osc2 = audioCtx.createOscillator();
+    const gain2 = audioCtx.createGain();
+    osc2.type = 'sine';
+    osc2.frequency.setValueAtTime(110, now + 0.15);
+    osc2.frequency.exponentialRampToValueAtTime(50, now + 0.28);
+    gain2.gain.setValueAtTime(0.5, now + 0.15);
+    gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+    osc2.connect(gain2);
+    gain2.connect(audioCtx.destination);
+    osc2.start(now + 0.15);
+    osc2.stop(now + 0.28);
+  } catch(e) {}
+}
+
+function playLoudBuzzer() {
+  try {
+    ensureAudioReady();
+    const now = audioCtx.currentTime;
+    const osc1 = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc1.type = 'sawtooth';
+    osc2.type = 'square';
+    osc1.frequency.setValueAtTime(220, now);
+    osc2.frequency.setValueAtTime(225, now);
+    gain.gain.setValueAtTime(0.7, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc1.start(now);
+    osc2.start(now);
+    osc1.stop(now + 1.2);
+    osc2.stop(now + 1.2);
+  } catch(e) {}
+}
+
+function playTone(freq = 800, duration = 0.1) {
+  try {
+    ensureAudioReady();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+/* গেম ফাংশন */
+function initSetOptions() {
+  const sel = document.getElementById('setSelector');
+  sel.innerHTML = '';
+  for(let i = 0; i < ALL_SETS.length; i++) {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = `সেট ${i + 1}`;
+    sel.appendChild(opt);
+  }
+}
+
+function onSetChange() {
+  currentSetIndex = parseInt(document.getElementById('setSelector').value);
+  resetCurrentRound();
+}
+
+function renderWordsGrid() {
+  const container = document.getElementById('wordsContainer');
+  container.innerHTML = '';
+  const words = ALL_SETS[currentSetIndex];
+
+  words.forEach((word) => {
+    const tile = document.createElement('div');
+    tile.className = 'word-tile';
+    tile.textContent = word;
+
+    if (answeredWords.has(word)) {
+      tile.classList.add('found');
+    }
+
+    tile.onclick = () => onWordClicked(word, tile);
+    container.appendChild(tile);
+  });
+}
+
+function onWordClicked(word, tileElement) {
+  if (currentPhase !== 'recall' || isPaused) return;
+
+  if (!answeredWords.has(word)) {
+    answeredWords.add(word);
+    currentScore++;
+    tileElement.classList.add('found');
+    playTone(950, 0.12);
+  } else {
+    answeredWords.delete(word);
+    currentScore--;
+    tileElement.classList.remove('found');
+    playTone(400, 0.08);
+  }
+  document.getElementById('liveScore').textContent = currentScore;
+
+  if (currentScore === 8) {
+    playTone(1300, 0.3);
+    finishRecallEarly();
+  }
+}
+
+function togglePause() {
+  if (currentPhase !== 'memorize' && currentPhase !== 'recall') return;
+  const pauseBtn = document.getElementById('btnPause');
+  if (!isPaused) {
+    isPaused = true;
+    pauseBtn.textContent = "চালান";
+    pauseBtn.style.background = "#27ae60";
+    document.getElementById('phaseText').textContent = "স্থগিত (Paused)";
+  } else {
+    isPaused = false;
+    pauseBtn.textContent = "থামুন";
+    pauseBtn.style.background = "linear-gradient(135deg, #f39c12, #d35400)";
+    document.getElementById('phaseText').textContent = (currentPhase === 'memorize') ? "পড়ার সময় চলছে" : "উত্তর পর্ব চলছে...";
+    if (currentPhase === 'recall') {
+      recallStartTime = performance.now() - recallElapsedMs;
+    }
+  }
+}
+
+function startMemorizePhase() {
+  const nameInput = document.getElementById('pName');
+  if (!nameInput.value.trim()) {
+    showToast("⚠️ অনুগ্রহ করে আগে নাম লিখুন!");
+    nameInput.focus();
+    return;
+  }
+
+  currentPhase = 'memorize';
+  isPaused = false;
+  answeredWords.clear();
+  currentScore = 0;
+  recallElapsedMs = 0;
+  document.getElementById('liveScore').textContent = "0";
+  document.getElementById('timeTakenText').textContent = "সময়: --";
+  document.getElementById('phaseText').textContent = "পড়ার সময় (২০ সে.)";
+  document.getElementById('subPhaseText').textContent = "শব্দগুলো মাইকে পড়ুন";
+  document.getElementById('btnMemorize').style.display = 'none';
+  document.getElementById('btnPause').style.display = 'block';
+
+  renderWordsGrid();
+
+  let memSeconds = 20;
+  document.getElementById('timerNum').textContent = memSeconds + "s";
+  document.getElementById('timerNum').classList.remove('heartbeat-active');
+  
+  clearInterval(currentTimer);
+  currentTimer = setInterval(() => {
+    if (isPaused) return;
+    playClockTick();
+    memSeconds--;
+    document.getElementById('timerNum').textContent = memSeconds + "s";
+
+    if (memSeconds <= 0) {
+      clearInterval(currentTimer);
+      playTone(1000, 0.4);
+      onMemorizeComplete();
+    }
+  }, 1000);
+}
+
+function onMemorizeComplete() {
+  currentPhase = 'ready_for_recall';
+  document.getElementById('btnPause').style.display = 'none';
+  document.getElementById('phaseText').textContent = "পড়া শেষ!";
+  document.getElementById('subPhaseText').textContent = "প্রতিযোগী তৈরি হলে বোতাম চাপুন";
+  document.getElementById('timerNum').textContent = "OK";
+  document.getElementById('btnRecall').style.display = 'block';
+}
+
+function startRecallPhase() {
+  currentPhase = 'recall';
+  isPaused = false;
+  document.getElementById('btnRecall').style.display = 'none';
+  document.getElementById('btnPause').style.display = 'block';
+  document.getElementById('btnPause').textContent = "থামুন";
+  document.getElementById('btnSaveScore').style.display = 'block';
+  document.getElementById('phaseText').textContent = "উত্তর পর্ব চলছে...";
+  document.getElementById('subPhaseText').textContent = "প্রতিযোগী যা বলবে টাচ করুন";
+
+  const totalTimeLimitMs = 30000;
+  recallStartTime = performance.now();
+  recallElapsedMs = 0;
+  lastTickSecond = -1;
+  document.getElementById('timerNum').classList.remove('heartbeat-active');
+
+  playTone(1100, 0.25);
+
+  clearInterval(currentTimer);
+  currentTimer = setInterval(() => {
+    if (isPaused) return;
+
+    recallElapsedMs = performance.now() - recallStartTime;
+    const remainingMs = Math.max(0, totalTimeLimitMs - recallElapsedMs);
+    
+    const sec = (remainingMs / 1000).toFixed(2);
+    document.getElementById('timerNum').textContent = `${sec}s`;
+    document.getElementById('timeTakenText').textContent = `সময়: ${(recallElapsedMs / 1000).toFixed(2)}s`;
+
+    const currentSecInt = Math.floor(remainingMs / 1000);
+    if (currentSecInt !== lastTickSecond) {
+      lastTickSecond = currentSecInt;
+      if (currentSecInt <= 4 && currentSecInt > 0) {
+        document.getElementById('timerNum').classList.add('heartbeat-active');
+        playHeartbeat();
+      } else if (currentSecInt > 4) {
+        playClockTick();
+      }
+    }
+
+    if (remainingMs <= 0) {
+      clearInterval(currentTimer);
+      recallElapsedMs = 30000;
+      document.getElementById('timerNum').classList.remove('heartbeat-active');
+      playLoudBuzzer();
+      finishRecallTimeUp();
+    }
+  }, 20);
+}
+
+function finishRecallTimeUp() {
+  currentPhase = 'completed';
+  document.getElementById('btnPause').style.display = 'none';
+  document.getElementById('phaseText').textContent = "সময় সমাপ্ত (Time Up!)";
+  document.getElementById('subPhaseText').textContent = "স্কোর সংরক্ষণ করুন";
+  document.getElementById('timerNum').textContent = "0.00s";
+  document.getElementById('timeTakenText').textContent = `সময়: 30.00s (সম্পূর্ণ)`;
+}
+
+function finishRecallEarly() {
+  clearInterval(currentTimer);
+  currentPhase = 'completed';
+  document.getElementById('timerNum').classList.remove('heartbeat-active');
+  document.getElementById('btnPause').style.display = 'none';
+  const takenSec = (recallElapsedMs / 1000).toFixed(2);
+  document.getElementById('phaseText').textContent = "৮টি শব্দ সম্পূর্ণ!";
+  document.getElementById('subPhaseText').textContent = `মাত্র ${takenSec} সেকেন্ডে বলেছে`;
+  document.getElementById('timeTakenText').textContent = `সময়: ${takenSec}s (লক)`;
+}
+
+function savePlayerScore() {
+  clearInterval(currentTimer);
+  document.getElementById('timerNum').classList.remove('heartbeat-active');
+  const name = document.getElementById('pName').value.trim();
+  const age = document.getElementById('pAge').value.trim() || "--";
+  const setNum = currentSetIndex + 1;
+  const timeTaken = parseFloat((recallElapsedMs / 1000).toFixed(2));
+
+  if (activeTiePlayer && activeTiePlayer.name === name) {
+    const tieIdx = tieLeaderboard.findIndex(p => p.name === name);
+    if (tieIdx !== -1) {
+      tieLeaderboard[tieIdx].tieScore = currentScore;
+      tieLeaderboard[tieIdx].tieTime = timeTaken;
+      tieLeaderboard[tieIdx].tieSet = setNum;
+    }
+    localStorage.setItem('khela_tie_lb_v9', JSON.stringify(tieLeaderboard));
+    showToast(`✅ টাই-স্কোর সেভ: ${name} (${currentScore}/৮, ${timeTaken}s)`);
+    activeTiePlayer = null;
+    switchView('tie');
+  } else {
+    const existingIndex = mainLeaderboard.findIndex(p => p.name === name);
+    const entry = {
+      name: name,
+      age: age,
+      set: setNum,
+      score: currentScore,
+      timeTaken: timeTaken,
+      timestamp: Date.now()
+    };
+
+    if (existingIndex !== -1) {
+      mainLeaderboard[existingIndex] = entry;
+    } else {
+      mainLeaderboard.push(entry);
+    }
+    localStorage.setItem('khela_main_lb_v9', JSON.stringify(mainLeaderboard));
+    showToast(`✅ সংরক্ষিত: ${name} (${currentScore}/৮, ${timeTaken}s)`);
+    switchView('rank');
+  }
+
+  if (currentSetIndex < ALL_SETS.length - 1) {
+    currentSetIndex++;
+    document.getElementById('setSelector').value = currentSetIndex;
+  }
+  document.getElementById('pName').value = "";
+  document.getElementById('pAge').value = "";
+  resetCurrentRound();
+}
+
+function resetCurrentRound() {
+  clearInterval(currentTimer);
+  document.getElementById('timerNum').classList.remove('heartbeat-active');
+  currentPhase = 'idle';
+  isPaused = false;
+  currentScore = 0;
+  recallElapsedMs = 0;
+  answeredWords.clear();
+  document.getElementById('timerNum').textContent = "--";
+  document.getElementById('phaseText').textContent = "রাউন্ড রেডি";
+  document.getElementById('subPhaseText').textContent = "নাম লিখে পড়া শুরু করুন";
+  document.getElementById('liveScore').textContent = "0";
+  document.getElementById('timeTakenText').textContent = "সময়: --";
+  document.getElementById('btnMemorize').style.display = 'block';
+  document.getElementById('btnRecall').style.display = 'none';
+  document.getElementById('btnPause').style.display = 'none';
+  document.getElementById('btnSaveScore').style.display = 'none';
+  renderWordsGrid();
+}
+
+function validateSequentialRank(targetRank, pName) {
+  const existingOccupant = finalWinners.find(w => w.assignedRank === targetRank && w.name !== pName);
+  if (existingOccupant) {
+    showToast(`❌ ${targetRank}ম স্থানটি ইতিমধ্যেই ${existingOccupant.name}-কে দেওয়া আছে!`);
+    return false;
+  }
+
+  if (targetRank === 2) {
+    const hasRank1 = finalWinners.some(w => w.assignedRank === 1);
+    if (!hasRank1) {
+      showToast(`❌ আগে ১ম স্থান নির্ধারণ করুন! ১ম খালি রেখে ২য় দেওয়া যাবে না।`);
+      return false;
+    }
+  }
+
+  if (targetRank === 3) {
+    const hasRank1 = finalWinners.some(w => w.assignedRank === 1);
+    const hasRank2 = finalWinners.some(w => w.assignedRank === 2);
+    if (!hasRank1) {
+      showToast(`❌ আগে ১ম স্থান নির্ধারণ করুন!`);
+      return false;
+    }
+    if (!hasRank2) {
+      showToast(`❌ আগে ২য় স্থান নির্ধারণ করুন! ১-এর পর সরাসরি ৩য় দেওয়া যাবে না।`);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function updateMainLeaderboard() {
+  const tbody = document.getElementById('rankTableBody');
+  tbody.innerHTML = '';
+
+  if (mainLeaderboard.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" style="color:#aaa;">এখনও কোনো স্কোর নেই</td></tr>`;
+    return;
+  }
+
+  mainLeaderboard.sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return a.timeTaken - b.timeTaken;
+  });
+
+  mainLeaderboard.forEach((p, index) => {
+    const isSelected = selectedInMain.has(p.name);
+    const row = document.createElement('tr');
+    if (isSelected) row.classList.add('selected');
+
+    row.onclick = () => toggleSelectPlayerMain(p.name);
+
+    row.innerHTML = `
+      <td><input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleSelectPlayerMain('${p.name}')"></td>
+      <td style="font-weight:bold;">${index + 1}</td>
+      <td style="font-weight: bold; text-align: left;">${p.name} <span style="font-size:0.75rem; color:#bbb;">(${p.age})</span></td>
+      <td>সেট ${p.set}</td>
+      <td style="font-weight: bold; color: var(--gold);">${p.score}</td>
+      <td style="color: #ffeedd;">${p.timeTaken.toFixed(2)}s</td>
+      <td>
+        <div style="display:flex; gap:3px; justify-content:center;" onclick="event.stopPropagation();">
+          <select id="main_pos_${p.name}" style="padding:2px; font-size:0.75rem;">
+            <option value="1">১ম</option>
+            <option value="2">২য়</option>
+            <option value="3">৩য়</option>
+            <option value="out">বাদ</option>
+          </select>
+          <button class="btn btn-blue" style="padding:4px 6px; font-size:0.75rem; width:auto;" onclick="assignRankDirectFromMain('${p.name}')">OK</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function toggleSelectPlayerMain(pName) {
+  if (selectedInMain.has(pName)) {
+    selectedInMain.delete(pName);
+  } else {
+    selectedInMain.add(pName);
+  }
+  updateMainLeaderboard();
+}
+
+function sendSelectedToTieBoard() {
+  if (selectedInMain.size === 0) {
+    showToast("⚠️ কাউকে সিলেক্ট করেননি!");
+    return;
+  }
+
+  const namesToMove = Array.from(selectedInMain);
+  const playersToMove = mainLeaderboard.filter(p => namesToMove.includes(p.name));
+
+  mainLeaderboard = mainLeaderboard.filter(p => !namesToMove.includes(p.name));
+  localStorage.setItem('khela_main_lb_v9', JSON.stringify(mainLeaderboard));
+
+  playersToMove.forEach(p => {
+    if (!tieLeaderboard.some(t => t.name === p.name)) {
+      tieLeaderboard.push({
+        ...p,
+        tieScore: null,
+        tieTime: null,
+        tieSet: null
+      });
+    }
+  });
+  localStorage.setItem('khela_tie_lb_v9', JSON.stringify(tieLeaderboard));
+
+  selectedInMain.clear();
+  showToast(`⚔️ ${playersToMove.length} জন টাই বোর্ডে স্থানান্তরিত!`);
+  switchView('tie');
+}
+
+function assignRankDirectFromMain(pName) {
+  const selectElem = document.getElementById(`main_pos_${pName}`);
+  const position = selectElem.value;
+  const player = mainLeaderboard.find(p => p.name === pName);
+
+  if (position !== "out") {
+    const targetRank = parseInt(position);
+    if (!validateSequentialRank(targetRank, pName)) return;
+
+    finalWinners = finalWinners.filter(w => w.name !== pName);
+    finalWinners.push({
+      ...player,
+      assignedRank: targetRank,
+      tieScore: null,
+      tieTime: null
+    });
+    localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
+  }
+
+  mainLeaderboard = mainLeaderboard.filter(p => p.name !== pName);
+  localStorage.setItem('khela_main_lb_v9', JSON.stringify(mainLeaderboard));
+
+  showToast(`${pName} ${position === "out" ? "বাদ পড়েছেন" : position + " নম্বর স্থান পেয়েছেন"}!`);
+  switchView('final');
+}
+
+function updateTieBoard() {
+  const tbody = document.getElementById('tieTableBody');
+  tbody.innerHTML = '';
+
+  if (tieLeaderboard.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:#aaa;">টাই বোর্ডে কেউ নেই</td></tr>`;
+    return;
+  }
+
+  tieLeaderboard.forEach((p) => {
+    const isSelected = selectedInTie.has(p.name);
+    const row = document.createElement('tr');
+    if (isSelected) row.classList.add('selected');
+
+    row.onclick = () => toggleSelectPlayerTie(p.name);
+
+    row.innerHTML = `
+      <td><input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleSelectPlayerTie('${p.name}')"></td>
+      <td style="font-weight: bold; text-align: left;">${p.name} <span style="font-size:0.75rem; color:#bbb;">(${p.age})</span></td>
+      <td style="font-weight:bold; color:var(--gold);">${p.tieScore !== null ? p.tieScore : '--'}</td>
+      <td style="color:#ffeb99;">${p.tieTime !== null ? p.tieTime.toFixed(2) + 's' : '--'}</td>
+      <td>
+        <button class="btn btn-warning" style="padding:4px 6px; font-size:0.75rem;" onclick="event.stopPropagation(); playTieRound('${p.name}')">Play</button>
+      </td>
+      <td>
+        <div style="display:flex; gap:3px; justify-content:center;" onclick="event.stopPropagation();">
+          <select id="pos_${p.name}" style="padding:2px; font-size:0.75rem;">
+            <option value="1">১ম</option>
+            <option value="2">২য়</option>
+            <option value="3">৩য়</option>
+            <option value="out">বাদ</option>
+          </select>
+          <button class="btn btn-blue" style="padding:4px 6px; font-size:0.75rem; width:auto;" onclick="assignFinalPosition('${p.name}')">OK</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+function toggleSelectPlayerTie(pName) {
+  if (selectedInTie.has(pName)) {
+    selectedInTie.delete(pName);
+  } else {
+    selectedInTie.add(pName);
+  }
+  updateTieBoard();
+}
+
+function reTieSelectedPlayers() {
+  if (selectedInTie.size === 0) {
+    showToast("⚠️ যাদের আবার টাই খেলবেন সিলেক্ট করুন!");
+    return;
+  }
+
+  const namesToReTie = Array.from(selectedInTie);
+  tieLeaderboard = tieLeaderboard.filter(p => namesToReTie.includes(p.name));
+  
+  tieLeaderboard.forEach(p => {
+    p.tieScore = null;
+    p.tieTime = null;
+    p.tieSet = null;
+  });
+
+  localStorage.setItem('khela_tie_lb_v9', JSON.stringify(tieLeaderboard));
+  selectedInTie.clear();
+  showToast("🔄 নির্বাচিতদের জন্য নতুন টাই রাউন্ড রেডি!");
+  updateTieBoard();
+}
+
+function playTieRound(pName) {
+  const player = tieLeaderboard.find(p => p.name === pName);
+  if (!player) return;
+
+  activeTiePlayer = player;
+  switchView('game');
+  document.getElementById('pName').value = player.name;
+  document.getElementById('pAge').value = player.age !== "--" ? player.age : "";
+  
+  if (currentSetIndex < ALL_SETS.length - 1) {
+    currentSetIndex++;
+    document.getElementById('setSelector').value = currentSetIndex;
+  }
+  resetCurrentRound();
+  showToast(`🎯 টাই ম্যাচ: ${player.name}`);
+}
+
+function assignFinalPosition(pName) {
+  const selectElem = document.getElementById(`pos_${pName}`);
+  const position = selectElem.value;
+  const player = tieLeaderboard.find(p => p.name === pName);
+
+  if (position !== "out") {
+    const targetRank = parseInt(position);
+    if (!validateSequentialRank(targetRank, pName)) return;
+
+    finalWinners = finalWinners.filter(w => w.name !== pName);
+    finalWinners.push({
+      ...player,
+      assignedRank: targetRank
+    });
+    localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
+  }
+
+  tieLeaderboard = tieLeaderboard.filter(p => p.name !== pName);
+  localStorage.setItem('khela_tie_lb_v9', JSON.stringify(tieLeaderboard));
+
+  showToast(`${pName} ${position === "out" ? "বাদ পড়েছেন" : position + " নম্বর স্থান পেয়েছেন"}!`);
+  switchView('final');
+}
+
+function updateFinalWinners() {
+  const container = document.getElementById('finalWinnersContainer');
+  container.innerHTML = '';
+
+  if (finalWinners.length === 0) {
+    container.innerHTML = `<div style="text-align:center; color:#aaa; padding:20px;">এখনও কোনো চূড়ান্ত বিজয়ী নির্বাচিত হয়নি।</div>`;
+    return;
+  }
+
+  finalWinners.sort((a, b) => a.assignedRank - b.assignedRank);
+
+  finalWinners.forEach(w => {
+    let borderClass = 'bronze';
+    let medal = '🥉 ৩য় স্থান';
+    if (w.assignedRank === 1) { borderClass = 'gold'; medal = '🥇 ১ম স্থান (চ্যাম্পিয়ন)'; }
+    if (w.assignedRank === 2) { borderClass = 'silver'; medal = '🥈 ২য় স্থান (রানার্স-আপ)'; }
+
+    const card = document.createElement('div');
+    card.className = `winner-card ${borderClass}`;
+    card.innerHTML = `
+      <div style="font-weight:900; font-size:1.05rem; color:var(--gold);">${medal}</div>
+      <div style="font-size:1.2rem; font-weight:bold; color:#fff;">${w.name} <span style="font-size:0.85rem; color:#bbb;">(${w.age} বছর)</span></div>
+      <div style="font-size:0.82rem; color:#e0d0b0; margin-top:2px;">
+        মূল স্কোর: <strong>${w.score}/৮</strong> (${w.timeTaken.toFixed(2)}s)
+        ${w.tieScore !== null && w.tieScore !== undefined ? ` | টাই স্কোর: <strong style="color:#27ae60;">${w.tieScore}/৮</strong> (${w.tieTime.toFixed(2)}s)` : ''}
+      </div>
+      <button class="btn btn-danger" style="width:auto; padding:3px 8px; font-size:0.7rem; margin-top:6px;" onclick="removePermanentlyFromWinners('${w.name}')">তালিকা থেকে মুছুন (স্থান ফাঁকা করুন)</button>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function removePermanentlyFromWinners(pName) {
+  showConfirm(`${pName}-কে চূড়ান্ত তালিকা থেকে মুছে স্থানটি ফাঁকা করতে চান?`, () => {
+    finalWinners = finalWinners.filter(w => w.name !== pName);
+    localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
+    updateFinalWinners();
+    showToast("স্থান ফাঁকা করা হয়েছে");
+  });
+}
+
+function promptClearAllData() {
+  showConfirm("সমস্ত ডাটা মুছে সম্পূর্ণ নতুন খেলা শুরু করতে চান?", () => {
+    localStorage.removeItem('khela_main_lb_v9');
+    localStorage.removeItem('khela_tie_lb_v9');
+    localStorage.removeItem('khela_final_win_v9');
+    mainLeaderboard = [];
+    tieLeaderboard = [];
+    finalWinners = [];
+    selectedInMain.clear();
+    selectedInTie.clear();
+    activeTiePlayer = null;
+    updateMainLeaderboard();
+    updateTieBoard();
+    updateFinalWinners();
+    showToast("সমস্ত ডাটা মুছে ফেলা হয়েছে");
+  });
+}
+
+function switchView(viewName) {
+  document.getElementById('gameView').style.display = (viewName === 'game') ? 'block' : 'none';
+  document.getElementById('rankView').style.display = (viewName === 'rank') ? 'block' : 'none';
+  document.getElementById('tieView').style.display = (viewName === 'tie') ? 'block' : 'none';
+  document.getElementById('finalView').style.display = (viewName === 'final') ? 'block' : 'none';
+
+  document.getElementById('tabGameBtn').classList.toggle('active', viewName === 'game');
+  document.getElementById('tabRankBtn').classList.toggle('active', viewName === 'rank');
+  document.getElementById('tabTieBtn').classList.toggle('active', viewName === 'tie');
+  document.getElementById('tabFinalBtn').classList.toggle('active', viewName === 'final');
+
+  if (viewName === 'rank') updateMainLeaderboard();
+  if (viewName === 'tie') updateTieBoard();
+  if (viewName === 'final') updateFinalWinners();
+}
+
+window.onload = () => {
+  initSetOptions();
+  renderWordsGrid();
+
+  // পূর্বে সেভ করা স্ক্রিন মোড লোড করা (যদি থাকে)
+  const savedMode = localStorage.getItem('khela_screen_mode');
+  if (savedMode) {
+    applyScreenMode(savedMode);
+  }
+};
+</script>
+</body>
+</html>
