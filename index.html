@@ -279,6 +279,48 @@
   .winner-card.silver { border-color: #c0c0c0; }
   .winner-card.bronze { border-color: #cd7f32; }
 
+  /* লাকি ড্র বক্স ও ঘোরার ডিজাইন */
+  .lucky-draw-box {
+    background: linear-gradient(135deg, rgba(195,20,50,0.25), rgba(245,175,25,0.15));
+    border: 1.5px dashed var(--gold);
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .lucky-num-display {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #fff;
+    background: #140303;
+    border: 1.5px solid var(--gold);
+    width: 60px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    box-shadow: inset 0 0 8px rgba(245,175,25,0.3);
+  }
+  .lucky-btn {
+    flex: 1;
+    background: linear-gradient(135deg, #e65c00, #f5af19);
+    color: #1a0505;
+    font-weight: 900;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.4);
+  }
+  .lucky-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
   #appToast {
     position: fixed;
     top: 15px;
@@ -401,8 +443,8 @@
 
   <header>
     <button class="mode-switch-btn" onclick="openDeviceModal()">🖥️</button>
-    <h1>🪔 চোখের খেলা শব্দের মেলা 🪔</h1>
-    <p>কালীপূজা স্পেশাল মেমরি কম্পিটিশন (৫০ সেট | ৮ শব্দ)</p>
+    <h1>🪔 স্মৃতির খেলা শব্দের মেলা 🪔</h1>
+    <p>কালীপূজা স্পেশাল মেমরি কম্পিটিশন</p>
   </header>
 
   <div class="tab-group">
@@ -414,6 +456,11 @@
 
   <!-- ১. গেম ভিউ -->
   <div id="gameView" class="card">
+    <!-- লাকি ড্র সেকশন -->
+    <div class="lucky-draw-box">
+      <button class="lucky-btn" id="btnLuckySpin" onclick="spinLuckySet()">🎰 লাকি ড্র (সেট বাছুন)</button>
+      <div class="lucky-num-display" id="luckySlotNum">?</div>
+    </div>
     <div class="input-row">
       <input type="text" id="pName" style="flex: 2;" placeholder="প্রতিযোগীর নাম..." autocomplete="off">
       <input type="number" id="pAge" style="flex: 1;" placeholder="বয়স" min="1" max="100">
@@ -1296,6 +1343,65 @@ function switchView(viewName) {
   if (viewName === 'final') updateFinalWinners();
 }
 
+  /* লাকি ড্র লজিক (৪ সেকেন্ড ঘুরবে, পুরোনো খেলা সেট বাদ যাবে) */
+let isSpinning = false;
+function spinLuckySet() {
+  if (isSpinning) return;
+
+  // ১ম রাউন্ডে ইতিমধ্যে খেলা হয়ে যাওয়া সেটগুলো বের করা
+  const playedSets = new Set(mainLeaderboard.map(p => p.set));
+  
+  // এখনও যে সেটগুলো খেলা হয়নি (১ থেকে ৫০-এর মধ্যে)
+  const availableSets = [];
+  for (let i = 1; i <= ALL_SETS.length; i++) {
+    if (!playedSets.has(i)) {
+      availableSets.push(i);
+    }
+  }
+
+  // সব সেট খেলা হয়ে গেলে সতর্কবার্তা
+  if (availableSets.length === 0) {
+    showToast("⚠️ সব ৫০টি সেট খেলা হয়ে গেছে!");
+    return;
+  }
+
+  isSpinning = true;
+  const spinBtn = document.getElementById('btnLuckySpin');
+  const slotDisplay = document.getElementById('luckySlotNum');
+  spinBtn.disabled = true;
+
+  const durationMs = 4000; // ঠিক ৪ সেকেন্ড ঘুরবে
+  const intervalMs = 60;   // প্রতি ৬০ মিলি-সেকেন্ডে নম্বর পরিবর্তন
+  const startTime = performance.now();
+
+  const spinInterval = setInterval(() => {
+    const elapsed = performance.now() - startTime;
+    
+    // র‍্যান্ডম যেকোনো উপলভ্য নম্বর দেখানো এবং টিক সাউন্ড
+    const randomTemp = availableSets[Math.floor(Math.random() * availableSets.length)];
+    slotDisplay.textContent = randomTemp;
+    playTone(900 + Math.random() * 400, 0.03);
+
+    if (elapsed >= durationMs) {
+      clearInterval(spinInterval);
+      
+      // চূড়ান্ত বিজয়ী সেট নির্ধারণ
+      const finalChosenSet = availableSets[Math.floor(Math.random() * availableSets.length)];
+      slotDisplay.textContent = finalChosenSet;
+      
+      // ড্রপডাউনে স্বয়ংক্রিয়ভাবে সেই সেট সিলেক্ট করা
+      currentSetIndex = finalChosenSet - 1;
+      document.getElementById('setSelector').value = currentSetIndex;
+      resetCurrentRound();
+
+      playTone(1400, 0.4); // বিজয়ী সাউন্ড
+      showToast(`🎉 সেট নম্বর ${finalChosenSet} নির্ধারিত হলো!`);
+      
+      spinBtn.disabled = false;
+      isSpinning = false;
+    }
+  }, intervalMs);
+}
 window.onload = () => {
   initSetOptions();
   renderWordsGrid();
