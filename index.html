@@ -656,6 +656,7 @@ let answeredWords = new Set();
 
 let recallStartTime = 0;
 let recallElapsedMs = 0;
+  let lastWordTimeTakenMs = 0;
 let lastTickSecond = -1;
 
 /* ডেটাস্টোর */
@@ -827,6 +828,7 @@ function onWordClicked(word, tileElement) {
   if (!answeredWords.has(word)) {
     answeredWords.add(word);
     currentScore++;
+    lastWordTimeTakenMs = performance.now() - recallStartTime;
     tileElement.classList.add('found');
     playTone(950, 0.12);
   } else {
@@ -988,7 +990,8 @@ function savePlayerScore() {
   const name = document.getElementById('pName').value.trim();
   const age = document.getElementById('pAge').value.trim() || "--";
   const setNum = currentSetIndex + 1;
-  const timeTaken = parseFloat((recallElapsedMs / 1000).toFixed(2));
+ const effectiveMs = (currentScore > 0) ? lastWordTimeTakenMs : recallElapsedMs;
+  const timeTaken = parseFloat((effectiveMs / 1000).toFixed(2));
 
   if (activeTiePlayer && activeTiePlayer.name === name) {
     const tieIdx = tieLeaderboard.findIndex(p => p.name === name);
@@ -1038,6 +1041,7 @@ function resetCurrentRound() {
   isPaused = false;
   currentScore = 0;
   recallElapsedMs = 0;
+  lastWordTimeTakenMs = 0;
   answeredWords.clear();
   document.getElementById('timerNum').textContent = "--";
   document.getElementById('phaseText').textContent = "রাউন্ড রেডি";
