@@ -187,10 +187,41 @@
     100% { transform: scale(1); }
   }
   .words-grid {
-    display: grid;
+    display: none; /* শুরুতে ঢাকা থাকবে */
     grid-template-columns: var(--grid-cols);
     gap: 10px;
     margin-top: 12px;
+    animation: slideDownWords 0.4s ease forwards;
+  }
+  .words-grid.visible {
+    display: grid !important;
+  }
+  @keyframes slideDownWords {
+    from {
+      opacity: 0;
+      transform: translateY(-15px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .btn-reveal-words {
+    background: linear-gradient(135deg, #8e2de2, #4a00e0);
+    color: #fff;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 10px;
+    box-shadow: 0 4px 12px rgba(142, 45, 226, 0.4);
+    touch-action: manipulation;
+  }
+  .btn-reveal-words:active {
+    transform: scale(0.97);
   }
   .word-tile {
     background: #381212;
@@ -487,6 +518,8 @@
       <span id="timeTakenText" style="font-size: 0.9rem; color: #ffeb99;">সময়: --</span>
     </div>
 
+    <!-- শব্দ দেখার বোতাম -->
+    <button class="btn-reveal-words" id="btnRevealWords" onclick="revealWordsPlate()">👁️ শব্দ প্লেট দেখান</button>
     <div class="words-grid" id="wordsContainer"></div>
 
     <button class="btn btn-blue" id="btnSaveScore" style="margin-top: 12px; display: none;" onclick="savePlayerScore()">স্কোর সেভ ও সমাপ্ত করুন</button>
@@ -1015,7 +1048,26 @@ function resetCurrentRound() {
   document.getElementById('btnRecall').style.display = 'none';
   document.getElementById('btnPause').style.display = 'none';
   document.getElementById('btnSaveScore').style.display = 'none';
+
+  // শব্দ প্লেট লুকিয়ে রাখা এবং বাটন দৃশ্যমান করা
+  const grid = document.getElementById('wordsContainer');
+  const revealBtn = document.getElementById('btnRevealWords');
+  if (grid) grid.classList.remove('visible');
+  if (revealBtn) {
+    revealBtn.style.display = 'block';
+    revealBtn.textContent = "👁️ শব্দ প্লেট দেখান";
+  }
   renderWordsGrid();
+}
+
+/* শব্দ প্লেট খোলার অ্যানিমেশন ফাংশন */
+function revealWordsPlate() {
+  const grid = document.getElementById('wordsContainer');
+  const revealBtn = document.getElementById('btnRevealWords');
+  
+  grid.classList.add('visible');
+  revealBtn.style.display = 'none'; // প্লেট খুলে গেলে বাটনটি সরে যাবে
+  playTone(1100, 0.15); // শব্দ খোলার হালকা প্রপ সাউন্ড
 }
 
 function validateSequentialRank(targetRank, pName) {
