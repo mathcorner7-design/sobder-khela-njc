@@ -1222,6 +1222,16 @@ function updateTieBoard() {
     return;
   }
 
+  /* টাই বোর্ডে অটো-সর্ট লজিক: বেশি স্কোর আগে, সমান হলে কম সময় আগে */
+  tieLeaderboard.sort((a, b) => {
+    const scoreA = (a.tieScore !== null && a.tieScore !== undefined) ? a.tieScore : -1;
+    const scoreB = (b.tieScore !== null && b.tieScore !== undefined) ? b.tieScore : -1;
+    if (scoreB !== scoreA) return scoreB - scoreA;
+
+    const timeA = (a.tieTime !== null && a.tieTime !== undefined) ? a.tieTime : 999;
+    const timeB = (b.tieTime !== null && b.tieTime !== undefined) ? b.tieTime : 999;
+    return timeA - timeB;
+  });
   tieLeaderboard.forEach((p) => {
     const isSelected = selectedInTie.has(p.name);
     const row = document.createElement('tr');
