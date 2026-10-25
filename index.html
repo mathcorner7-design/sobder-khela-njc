@@ -528,6 +528,8 @@
       </div>
       <div id="syncStatus" style="font-size:0.75rem; color:#00ff88; margin-top:6px;"></div>
     </div>
+    <!-- এখানে নতুন ক্যান্সেল / ব্যাক বোতাম যোগ করুন -->
+    <button class="device-btn" onclick="closeDeviceModal()" style="background:#2b1010; border-color:#882222; color:#ff9999; margin-top:12px; padding:8px;">❌ বাতিল / বন্ধ করুন</button>
   </div>
 </div>
 
@@ -670,7 +672,9 @@ function applyScreenMode(mode) {
 function openDeviceModal() {
   document.getElementById('deviceModal').style.display = 'flex';
 }
-
+function closeDeviceModal() {
+  document.getElementById('deviceModal').style.display = 'none';
+}
 /* ৪০০টি চেনা, বহুল ব্যবহৃত ২-৩ অক্ষরের বাংলা শব্দ (৫০টি মিক্সড সেট) */
 const ALL_SETS = [
   /* সেট ১  */ ["আকাশ", "বাতাস", "গোলাপ", "কলম", "থালা", "সকাল", "নদী", "টাকা"],
@@ -1488,7 +1492,7 @@ function switchView(viewName) {
 }
 
   
-/* লাকি ড্র লজিক: প্রি-ডিটারমাইন্ড নম্বর সাপোর্ট সহ */
+/* লাকি ড্র লজিক: নিখুঁত মোবাইল ও ল্যাপটপ সিঙ্ক সহ */
 let isSpinning = false;
 function spinLuckySet(forcedTargetSet = null) {
   if (isSpinning) return;
@@ -1506,12 +1510,18 @@ function spinLuckySet(forcedTargetSet = null) {
     return;
   }
 
-  // যদি বাইরে থেকে নম্বর না আসে (যেমন ল্যাপটপ একা চললে বা মোবাইল ড্র শুরু করলে), তবে র্যান্ডম বাছবে
-  const finalChosenSet = forcedTargetSet !== null ? forcedTargetSet : availableSets[Math.floor(Math.random() * availableSets.length)];
-
-  // মোবাইল থেকে শুরু হলে ল্যাপটপকে ওই একই নির্ধারিত নম্বর পাঠানো
-  if (isMobileRemote && forcedTargetSet === null) {
-    sendSyncAction({ type: 'SPIN_LUCKY', targetSet: finalChosenSet });
+  // চূড়ান্ত বিজয়ী নম্বর নির্ধারণ
+  let finalChosenSet;
+  if (forcedTargetSet !== null) {
+    // ল্যাপটপ যদি রিমোট থেকে নম্বর পায়
+    finalChosenSet = forcedTargetSet;
+  } else {
+    // সাধারণ ড্র (মোবাইল বা একক ল্যাপটপ)
+    finalChosenSet = availableSets[Math.floor(Math.random() * availableSets.length)];
+    // শুধুমাত্র মোবাইল থেকে ড্র শুরু হলে তবেই ল্যাপটপে এই নির্দিষ্ট নম্বর পাঠানো হবে
+    if (isMobileRemote) {
+      sendSyncAction({ type: 'SPIN_LUCKY', targetSet: finalChosenSet });
+    }
   }
 
   isSpinning = true;
@@ -1521,7 +1531,7 @@ function spinLuckySet(forcedTargetSet = null) {
   const slotDisplay = document.getElementById('luckySlotNum');
   const spinBtn = document.getElementById('btnLuckySpin');
 
-  spinBtn.disabled = true;
+  if (spinBtn) spinBtn.disabled = true;
   bigSlot.classList.remove('winner-pulse');
   bigSub.textContent = "ভাগ্যের চাকা ঘুরছে...";
   bigSub.style.color = "#ffd89b";
@@ -1542,7 +1552,7 @@ function spinLuckySet(forcedTargetSet = null) {
     if (elapsed >= durationMs) {
       clearInterval(spinInterval);
 
-      // উভয়েই ঠিক একই প্রি-ডিটারমাইন্ড নম্বরে থামবে
+      // উভয়ের স্ক্রিনে কাঁটায় কাঁটায় একই চূড়ান্ত বিজয়ী নম্বর বসবে
       bigSlot.textContent = finalChosenSet;
       if (slotDisplay) slotDisplay.textContent = finalChosenSet;
       
@@ -1550,6 +1560,7 @@ function spinLuckySet(forcedTargetSet = null) {
       bigSub.textContent = `🎉 সেট নম্বর ${finalChosenSet} নির্ধারিত হলো!`;
       bigSub.style.color = "#00ff88";
 
+      // সেট আপডেট
       currentSetIndex = finalChosenSet - 1;
       document.getElementById('setSelector').value = currentSetIndex;
       resetCurrentRound();
@@ -1560,7 +1571,7 @@ function spinLuckySet(forcedTargetSet = null) {
         overlay.style.display = 'none';
         bigSlot.classList.remove('winner-pulse');
         showToast(`🎉 সেট নম্বর ${finalChosenSet} নির্ধারিত হলো!`);
-        spinBtn.disabled = false;
+        if (spinBtn) spinBtn.disabled = false;
         isSpinning = false;
       }, 2000);
     }
