@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>চোখের খেলা শব্দের মেলা - কালীপূজা বিশেষ</title>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
 <style>
   :root {
     --bg-dark: #120303;
@@ -509,27 +508,6 @@
     <button class="device-btn" onclick="applyScreenMode('mobile')">📱 মোবাইল ফোন (Mobile)</button>
     <button class="device-btn" onclick="applyScreenMode('tablet')">📟 ট্যাবলেট (Tablet / iPad)</button>
     <button class="device-btn" onclick="applyScreenMode('tv')">💻 ল্যাপটপ / টিভি / প্রজেক্টর</button>
-    <!-- সিঙ্ক কানেকশন বক্স -->
-    <div style="margin-top: 15px; border-top: 1px dashed var(--gold); padding-top: 10px;">
-      <div id="syncRoleSelect">
-        <p style="font-size:0.8rem; color:#ffeb99; margin-bottom:6px;">রিমোট সিঙ্ক মোড (ঐচ্ছিক):</p>
-        <button class="device-btn" onclick="initAsLaptopDisplay()" style="background:#0e4429; margin-top:4px;">📽️ এটি ল্যাপটপ / প্রজেক্টর স্ক্রিন</button>
-        <button class="device-btn" onclick="showMobilePinInput()" style="background:#5a1919; margin-top:4px;">📱 এটি মোবাইল রিমোট</button>
-      </div>
-
-      <div id="laptopPinDisplay" style="display:none;">
-        <p style="font-size:0.8rem; color:#aaa;">মোবাইলে এই ৪ ডিজিট লিখুন:</p>
-        <div id="syncPinText" style="font-size:1.8rem; color:var(--gold); font-weight:bold; letter-spacing:4px; margin:5px 0;">--</div>
-      </div>
-
-      <div id="mobilePinArea" style="display:none;">
-        <input type="text" id="syncPinInput" placeholder="ল্যাপটপের ৪ ডিজিট পিন" maxlength="4" style="width:140px; text-align:center; font-size:1.1rem; padding:6px; margin-bottom:6px;">
-        <button class="device-btn" onclick="connectMobileController()" style="background:var(--gold); color:#120303; margin:0 auto; width:140px; padding:8px;">কানেক্ট</button>
-      </div>
-      <div id="syncStatus" style="font-size:0.75rem; color:#00ff88; margin-top:6px;"></div>
-    </div>
-    <!-- এখানে নতুন ক্যান্সেল / ব্যাক বোতাম যোগ করুন -->
-    <button class="device-btn" onclick="closeDeviceModal()" style="background:#2b1010; border-color:#882222; color:#ff9999; margin-top:12px; padding:8px;">❌ বাতিল / বন্ধ করুন</button>
   </div>
 </div>
 
@@ -672,9 +650,7 @@ function applyScreenMode(mode) {
 function openDeviceModal() {
   document.getElementById('deviceModal').style.display = 'flex';
 }
-function closeDeviceModal() {
-  document.getElementById('deviceModal').style.display = 'none';
-}
+
 /* ৪০০টি চেনা, বহুল ব্যবহৃত ২-৩ অক্ষরের বাংলা শব্দ (৫০টি মিক্সড সেট) */
 const ALL_SETS = [
   /* সেট ১  */ ["আকাশ", "বাতাস", "গোলাপ", "কলম", "থালা", "সকাল", "নদী", "টাকা"],
@@ -1492,12 +1468,15 @@ function switchView(viewName) {
 }
 
   
-/* লাকি ড্র লজিক: নিখুঁত মোবাইল ও ল্যাপটপ সিঙ্ক সহ */
+/* লাকি ড্র লজিক: বড় স্ক্রিনে ৩ সেকেন্ড ঘুরবে এবং ২ সেকেন্ড বিজয়ী নম্বর দেখাবে */
 let isSpinning = false;
-function spinLuckySet(forcedTargetSet = null) {
+function spinLuckySet() {
   if (isSpinning) return;
 
+  // ১ম রাউন্ডে ইতিমধ্যে খেলা হয়ে যাওয়া সেটগুলো বের করা
   const playedSets = new Set(mainLeaderboard.map(p => p.set));
+  
+  // এখনও যে সেটগুলো খেলা হয়নি (১ থেকে ৫০)
   const availableSets = [];
   for (let i = 1; i <= ALL_SETS.length; i++) {
     if (!playedSets.has(i)) {
@@ -1506,22 +1485,8 @@ function spinLuckySet(forcedTargetSet = null) {
   }
 
   if (availableSets.length === 0) {
-    showToast("⚠️ সব ৫০টি সেট খেলা হয়ে গেছে!");
+    showToast("⚠️ সব ৫০টি সেট খেলা হয়ে গেছে!");
     return;
-  }
-
-  // চূড়ান্ত বিজয়ী নম্বর নির্ধারণ
-  let finalChosenSet;
-  if (forcedTargetSet !== null) {
-    // ল্যাপটপ যদি রিমোট থেকে নম্বর পায়
-    finalChosenSet = forcedTargetSet;
-  } else {
-    // সাধারণ ড্র (মোবাইল বা একক ল্যাপটপ)
-    finalChosenSet = availableSets[Math.floor(Math.random() * availableSets.length)];
-    // শুধুমাত্র মোবাইল থেকে ড্র শুরু হলে তবেই ল্যাপটপে এই নির্দিষ্ট নম্বর পাঠানো হবে
-    if (isMobileRemote) {
-      sendSyncAction({ type: 'SPIN_LUCKY', targetSet: finalChosenSet });
-    }
   }
 
   isSpinning = true;
@@ -1531,14 +1496,14 @@ function spinLuckySet(forcedTargetSet = null) {
   const slotDisplay = document.getElementById('luckySlotNum');
   const spinBtn = document.getElementById('btnLuckySpin');
 
-  if (spinBtn) spinBtn.disabled = true;
+  spinBtn.disabled = true;
   bigSlot.classList.remove('winner-pulse');
   bigSub.textContent = "ভাগ্যের চাকা ঘুরছে...";
   bigSub.style.color = "#ffd89b";
-  overlay.style.display = 'flex';
+  overlay.style.display = 'flex'; // বড় স্ক্রিন চালু
 
-  const durationMs = 3000;
-  const intervalMs = 60;
+  const durationMs = 3000; // ঠিক ৩ সেকেন্ড ঘুরবে
+  const intervalMs = 60;   // দ্রুত নম্বর পরিবর্তন
   const startTime = performance.now();
 
   const spinInterval = setInterval(() => {
@@ -1552,7 +1517,8 @@ function spinLuckySet(forcedTargetSet = null) {
     if (elapsed >= durationMs) {
       clearInterval(spinInterval);
 
-      // উভয়ের স্ক্রিনে কাঁটায় কাঁটায় একই চূড়ান্ত বিজয়ী নম্বর বসবে
+      // চূড়ান্ত সেট নির্ধারণ
+      const finalChosenSet = availableSets[Math.floor(Math.random() * availableSets.length)];
       bigSlot.textContent = finalChosenSet;
       if (slotDisplay) slotDisplay.textContent = finalChosenSet;
       
@@ -1567,11 +1533,12 @@ function spinLuckySet(forcedTargetSet = null) {
 
       playTone(1400, 0.45);
 
+      // ঠিক ২ সেকেন্ড বড় স্ক্রিনে ফাইনাল নম্বর দেখানোর পর মূল স্ক্রিনে ফেরা
       setTimeout(() => {
         overlay.style.display = 'none';
         bigSlot.classList.remove('winner-pulse');
         showToast(`🎉 সেট নম্বর ${finalChosenSet} নির্ধারিত হলো!`);
-        if (spinBtn) spinBtn.disabled = false;
+        spinBtn.disabled = false;
         isSpinning = false;
       }, 2000);
     }
@@ -1586,158 +1553,6 @@ window.onload = () => {
   if (savedMode) {
     applyScreenMode(savedMode);
   }
-};
-  /* ================= ব্রাউজার টু ব্রাউজার সিঙ্ক লজিক ================= */
-let syncPeer = null;
-let syncConn = null;
-let isMobileRemote = false;
-
-// ল্যাপটপ স্ক্রিন সেটআপ
-function initAsLaptopDisplay() {
-  applyScreenMode('tv');
-  document.getElementById('syncRoleSelect').style.display = 'none';
-  document.getElementById('laptopPinDisplay').style.display = 'block';
-
-  // ৪ সংখ্যার একটি সহজ পিন কোড তৈরি
-  const pin = Math.floor(1000 + Math.random() * 9000).toString();
-  document.getElementById('syncPinText').textContent = pin;
-
-  syncPeer = new Peer('khela-sync-' + pin);
-
-  syncPeer.on('connection', (conn) => {
-    syncConn = conn;
-    document.getElementById('deviceModal').style.display = 'none';
-    showToast("✅ মোবাইল সংযুক্ত হয়েছে!");
-
-    // মোবাইল থেকে অ্যাকশন আসলে ল্যাপটপে চালানো
-    syncConn.on('data', (action) => {
-      executeRemoteAction(action);
-    });
-  });
-}
-
-function showMobilePinInput() {
-  applyScreenMode('mobile');
-  document.getElementById('syncRoleSelect').style.display = 'none';
-  document.getElementById('mobilePinArea').style.display = 'block';
-}
-
-// মোবাইল থেকে ল্যাপটপে কানেক্ট হওয়া
-function connectMobileController() {
-  const pin = document.getElementById('syncPinInput').value.trim();
-  if (pin.length !== 4) {
-    showToast("⚠️ সঠিক ৪ সংখ্যার পিন দিন!");
-    return;
-  }
-
-  isMobileRemote = true;
-  document.getElementById('syncStatus').textContent = "কানেক্ট হচ্ছে...";
-
-  syncPeer = new Peer();
-  syncPeer.on('open', () => {
-    syncConn = syncPeer.connect('khela-sync-' + pin);
-
-    syncConn.on('open', () => {
-      document.getElementById('deviceModal').style.display = 'none';
-      showToast("✅ ল্যাপটপের সাথে সংযুক্ত!");
-    });
-  });
-}
-
-// মোবাইলে যেকোনো বাটনে ক্লিক করলে তা ল্যাপটপে পাঠানো
-function sendSyncAction(act) {
-  if (isMobileRemote && syncConn && syncConn.open) {
-    syncConn.send(act);
-  }
-}
-
-// ল্যাপটপে রিমোট কমান্ড এক্সিকিউট করা
-function executeRemoteAction(act) {
-  if (act.type === 'CLICK_WORD') {
-    // শব্দে ক্লিক
-    const tiles = document.querySelectorAll('#wordsContainer .word-tile');
-    tiles.forEach(tile => {
-      if (tile.textContent.trim() === act.word) {
-        onWordClicked(act.word, tile);
-      }
-    });
-  } else if (act.type === 'START_MEMORIZE') {
-    document.getElementById('pName').value = act.name;
-    document.getElementById('pAge').value = act.age;
-    startMemorizePhase();
-  } else if (act.type === 'START_RECALL') {
-    startRecallPhase();
-  } else if (act.type === 'PAUSE') {
-    togglePause();
-  } else if (act.type === 'RESET') {
-    resetCurrentRound();
-  } else if (act.type === 'REVEAL_WORDS') {
-    revealWordsPlate();
-  } else if (act.type === 'SPIN_LUCKY') {
-  spinLuckySet(act.targetSet);
-  } else if (act.type === 'SET_CHANGE') {
-    document.getElementById('setSelector').value = act.index;
-    onSetChange();
-  } else if (act.type === 'SWITCH_VIEW') {
-    switchView(act.view);
-  } else if (act.type === 'SAVE_SCORE') {
-    savePlayerScore();
-  }
-}
-
-// বিদ্যমান মূল ফাংশনগুলোতে সিঙ্ক হুক লাগানো (কোনো লজিক না বদলে শুধু সিগন্যাল পাঠানো)
-const origStartMemorize = startMemorizePhase;
-startMemorizePhase = function() {
-  origStartMemorize();
-  sendSyncAction({
-    type: 'START_MEMORIZE',
-    name: document.getElementById('pName').value,
-    age: document.getElementById('pAge').value
-  });
-};
-
-const origStartRecall = startRecallPhase;
-startRecallPhase = function() {
-  origStartRecall();
-  sendSyncAction({ type: 'START_RECALL' });
-};
-
-const origTogglePause = togglePause;
-togglePause = function() {
-  origTogglePause();
-  sendSyncAction({ type: 'PAUSE' });
-};
-
-const origResetCurrentRound = resetCurrentRound;
-resetCurrentRound = function() {
-  origResetCurrentRound();
-  sendSyncAction({ type: 'RESET' });
-};
-
-const origRevealWordsPlate = revealWordsPlate;
-revealWordsPlate = function() {
-  origRevealWordsPlate();
-  sendSyncAction({ type: 'REVEAL_WORDS' });
-};
-
-
-
-const origOnWordClicked = onWordClicked;
-onWordClicked = function(word, tileElement) {
-  origOnWordClicked(word, tileElement);
-  sendSyncAction({ type: 'CLICK_WORD', word: word });
-};
-
-const origSavePlayerScore = savePlayerScore;
-savePlayerScore = function() {
-  origSavePlayerScore();
-  sendSyncAction({ type: 'SAVE_SCORE' });
-};
-
-const origSwitchView = switchView;
-switchView = function(viewName) {
-  origSwitchView(viewName);
-  sendSyncAction({ type: 'SWITCH_VIEW', view: viewName });
 };
 </script>
 </body>
