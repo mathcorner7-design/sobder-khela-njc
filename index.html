@@ -1488,15 +1488,12 @@ function switchView(viewName) {
 }
 
   
-/* লাকি ড্র লজিক: বড় স্ক্রিনে ৩ সেকেন্ড ঘুরবে এবং ২ সেকেন্ড বিজয়ী নম্বর দেখাবে */
+/* লাকি ড্র লজিক: প্রি-ডিটারমাইন্ড নম্বর সাপোর্ট সহ */
 let isSpinning = false;
-function spinLuckySet() {
+function spinLuckySet(forcedTargetSet = null) {
   if (isSpinning) return;
 
-  // ১ম রাউন্ডে ইতিমধ্যে খেলা হয়ে যাওয়া সেটগুলো বের করা
   const playedSets = new Set(mainLeaderboard.map(p => p.set));
-  
-  // এখনও যে সেটগুলো খেলা হয়নি (১ থেকে ৫০)
   const availableSets = [];
   for (let i = 1; i <= ALL_SETS.length; i++) {
     if (!playedSets.has(i)) {
@@ -1505,8 +1502,16 @@ function spinLuckySet() {
   }
 
   if (availableSets.length === 0) {
-    showToast("⚠️ সব ৫০টি সেট খেলা হয়ে গেছে!");
+    showToast("⚠️ সব ৫০টি সেট খেলা হয়ে গেছে!");
     return;
+  }
+
+  // যদি বাইরে থেকে নম্বর না আসে (যেমন ল্যাপটপ একা চললে বা মোবাইল ড্র শুরু করলে), তবে র্যান্ডম বাছবে
+  const finalChosenSet = forcedTargetSet !== null ? forcedTargetSet : availableSets[Math.floor(Math.random() * availableSets.length)];
+
+  // মোবাইল থেকে শুরু হলে ল্যাপটপকে ওই একই নির্ধারিত নম্বর পাঠানো
+  if (isMobileRemote && forcedTargetSet === null) {
+    sendSyncAction({ type: 'SPIN_LUCKY', targetSet: finalChosenSet });
   }
 
   isSpinning = true;
@@ -1520,10 +1525,10 @@ function spinLuckySet() {
   bigSlot.classList.remove('winner-pulse');
   bigSub.textContent = "ভাগ্যের চাকা ঘুরছে...";
   bigSub.style.color = "#ffd89b";
-  overlay.style.display = 'flex'; // বড় স্ক্রিন চালু
+  overlay.style.display = 'flex';
 
-  const durationMs = 3000; // ঠিক ৩ সেকেন্ড ঘুরবে
-  const intervalMs = 60;   // দ্রুত নম্বর পরিবর্তন
+  const durationMs = 3000;
+  const intervalMs = 60;
   const startTime = performance.now();
 
   const spinInterval = setInterval(() => {
@@ -1537,8 +1542,7 @@ function spinLuckySet() {
     if (elapsed >= durationMs) {
       clearInterval(spinInterval);
 
-      // চূড়ান্ত সেট নির্ধারণ
-      const finalChosenSet = availableSets[Math.floor(Math.random() * availableSets.length)];
+      // উভয়েই ঠিক একই প্রি-ডিটারমাইন্ড নম্বরে থামবে
       bigSlot.textContent = finalChosenSet;
       if (slotDisplay) slotDisplay.textContent = finalChosenSet;
       
@@ -1546,14 +1550,12 @@ function spinLuckySet() {
       bigSub.textContent = `🎉 সেট নম্বর ${finalChosenSet} নির্ধারিত হলো!`;
       bigSub.style.color = "#00ff88";
 
-      // সেট আপডেট
       currentSetIndex = finalChosenSet - 1;
       document.getElementById('setSelector').value = currentSetIndex;
       resetCurrentRound();
 
       playTone(1400, 0.45);
 
-      // ঠিক ২ সেকেন্ড বড় স্ক্রিনে ফাইনাল নম্বর দেখানোর পর মূল স্ক্রিনে ফেরা
       setTimeout(() => {
         overlay.style.display = 'none';
         bigSlot.classList.remove('winner-pulse');
@@ -1661,7 +1663,7 @@ function executeRemoteAction(act) {
   } else if (act.type === 'REVEAL_WORDS') {
     revealWordsPlate();
   } else if (act.type === 'SPIN_LUCKY') {
-    spinLuckySet();
+  spinLuckySet(act.targetSet);
   } else if (act.type === 'SET_CHANGE') {
     document.getElementById('setSelector').value = act.index;
     onSetChange();
@@ -1707,11 +1709,7 @@ revealWordsPlate = function() {
   sendSyncAction({ type: 'REVEAL_WORDS' });
 };
 
-const origSpinLuckySet = spinLuckySet;
-spinLuckySet = function() {
-  origSpinLuckySet();
-  sendSyncAction({ type: 'SPIN_LUCKY' });
-};
+
 
 const origOnWordClicked = onWordClicked;
 onWordClicked = function(word, tileElement) {
