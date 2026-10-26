@@ -1306,7 +1306,7 @@ function startRecallPhase() {
     recallElapsedMs = performance.now() - recallStartTime;
     const remainingMs = Math.max(0, totalTimeLimitMs - recallElapsedMs);
     
-    const sec = (remainingMs / 1000).toFixed(2);
+    const sec = (recallElapsedMs / 1000).toFixed(2);
     document.getElementById('timerNum').textContent = `${sec}s`;
     document.getElementById('timeTakenText').textContent = `সময়: ${(recallElapsedMs / 1000).toFixed(2)}s`;
 
