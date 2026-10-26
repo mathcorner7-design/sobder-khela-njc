@@ -582,7 +582,7 @@
     <div style="background: #1e0606; border: 1px solid #5a1919; border-radius: 10px; padding: 10px; margin-bottom: 12px; display: flex; justify-content: space-around; align-items: center;">
       <div>
         <div style="font-size: 0.75rem; color: #aaa;">প্রতিযোগী</div>
-        <div id="sumPlayerName" style="font-size: 1.15rem; font-weight: bold; color: #fff;">--</div>
+        <div id="sumPlayerName" style="font-size: 2rem; font-weight: 900; color: var(--gold); text-shadow: 0 0 12px rgba(245, 175, 25, 0.6); letter-spacing: 1px;">--</div>
       </div>
       <div>
         <div style="font-size: 0.75rem; color: #aaa;">বয়স</div>
@@ -1568,9 +1568,9 @@ function showRoundSummaryModal(data) {
 
 function closeRoundSummaryModal() {
   document.getElementById('roundSummaryModal').style.display = 'none';
-  // মোবাইল থেকে কাটা হলে ল্যাপটপকেও পপআপ বন্ধ করার নির্দেশ দেওয়া
+  // ল্যাপটপকেও পপআপ বন্ধ করে সঠিক লিডারবোর্ডে যাওয়ার নির্দেশ দেওয়া
   sendPeerAction({ type: 'CLOSE_SUMMARY' });
-  // এরপর লিডারবোর্ডে যাওয়া
+  sendPeerAction({ type: 'SWITCH_VIEW', view: pendingViewAfterSummary });
   switchView(pendingViewAfterSummary);
 }
 function removePermanentlyFromWinners(pName) {
@@ -1981,38 +1981,39 @@ switchView = function(viewName) {
   sendPeerAction({ type: 'SWITCH_VIEW', view: viewName });
 };
 
-// ২. স্কোর সেভ বা ডাটা বদলালে ফায়ারবেসে পুশ এবং ল্যাপটপ স্ক্রিন সিঙ্ক
+// ২. স্কোর সেভ বা ডাটা বদলালে ফায়ারবেসে পুশ এবং ল্যাপটপ স্ক্রিন সিঙ্ক
 const origSavePlayerScore = savePlayerScore;
 savePlayerScore = function() {
-  // ১. বর্তমান রাউন্ডের সমস্ত তথ্য সংগ্রহ
-  const name = document.getElementById('pName').value.trim();
-  const age = document.getElementById('pAge').value.trim();
-  const setNum = currentSetIndex + 1;
-  const effectiveMs = (currentScore > 0) ? lastWordTimeTakenMs : recallElapsedMs;
-  const timeTaken = parseFloat((effectiveMs / 1000).toFixed(2));
-  const allWords = [...ALL_SETS[currentSetIndex]];
-  const answeredList = Array.from(answeredWords);
+  // ১. রিসেট হওয়ার আগেই সমস্ত ডেটা ক্যাশ করে নেওয়া
+  const capturedName = document.getElementById('pName').value.trim();
+  const capturedAge = document.getElementById('pAge').value.trim();
+  const capturedSet = currentSetIndex + 1;
+  const capturedScore = currentScore;
+  const effectiveMs = (capturedScore > 0) ? lastWordTimeTakenMs : recallElapsedMs;
+  const capturedTime = parseFloat((effectiveMs / 1000).toFixed(2));
+  const capturedAllWords = [...ALL_SETS[currentSetIndex]];
+  const capturedAnswered = Array.from(answeredWords);
   const nextTargetView = activeTiePlayer ? 'tie' : 'rank';
 
   pendingViewAfterSummary = nextTargetView;
 
   const summaryData = {
-    name: name,
-    age: age,
-    set: setNum,
-    score: currentScore,
-    timeTaken: timeTaken,
-    allWords: allWords,
-    answeredWords: answeredList
+    name: capturedName,
+    age: capturedAge,
+    set: capturedSet,
+    score: capturedScore,
+    timeTaken: capturedTime,
+    allWords: capturedAllWords,
+    answeredWords: capturedAnswered
   };
 
-  // ২. আসল স্কোর সেভ এবং ক্লাউডে স্থায়ী পুশ
-  origSavePlayerScore();
-  pushDataToFirebase();
-
-  // ৩. ল্যাপটপ ও মোবাইলে অ্যানিমেশন সহ বড় রিপোর্ট কার্ড প্রদর্শন
+  // ২. আগে ল্যাপটপে এবং মোবাইলে বড় রিপোর্ট কার্ড পপআপ দেখানো
   showRoundSummaryModal(summaryData);
   sendPeerAction({ type: 'SHOW_SUMMARY', data: summaryData, nextView: nextTargetView });
+
+  // ৩. এরপর মূল ডাটা সেভ এবং ফায়ারবেসে পুশ
+  origSavePlayerScore();
+  pushDataToFirebase();
 };
 
 const origSendSelectedToTieBoard = sendSelectedToTieBoard;
