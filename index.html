@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>চোখের খেলা শব্দের মেলা - কালীপূজা বিশেষ</title>
+  <!-- PeerJS (লাইভ গেমবোর্ড মিরর) -->
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <!-- Firebase SDK (স্থায়ী লিডারবোর্ড ও টাইবোর্ড ডেটা) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <style>
   :root {
     --bg-dark: #120303;
@@ -502,12 +507,54 @@
 <!-- প্রারম্ভিক স্ক্রিন নির্বাচন পপআপ -->
 <div id="deviceModal">
   <div class="device-box">
-    <h2 style="color: var(--gold); font-size: 1.25rem; margin-bottom: 6px;">📺 কোন স্ক্রিনে চালাবেন?</h2>
-    <p style="font-size: 0.82rem; color: #e0d0b0; margin-bottom: 15px;">আপনার ডিভাইসের ধরন বেছে নিন:</p>
-    
-    <button class="device-btn" onclick="applyScreenMode('mobile')">📱 মোবাইল ফোন (Mobile)</button>
-    <button class="device-btn" onclick="applyScreenMode('tablet')">📟 ট্যাবলেট (Tablet / iPad)</button>
-    <button class="device-btn" onclick="applyScreenMode('tv')">💻 ল্যাপটপ / টিভি / প্রজেক্টর</button>
+    <!-- সাধারণ মোড মেনু -->
+    <div id="normalScreenMenu">
+      <h2 style="color: var(--gold); font-size: 1.25rem; margin-bottom: 6px;">📺 কোন স্ক্রিনে চালাবেন?</h2>
+      <p style="font-size: 0.82rem; color: #e0d0b0; margin-bottom: 12px;">স্বাভাবিক খেলার জন্য স্ক্রিন বেছে নিন:</p>
+      
+      <button class="device-btn" onclick="applyScreenMode('mobile')">📱 মোবাইল ফোন (Mobile)</button>
+      <button class="device-btn" onclick="applyScreenMode('tablet')">📟 ট্যাবলেট (Tablet / iPad)</button>
+      <button class="device-btn" onclick="applyScreenMode('tv')">💻 ল্যাপটপ / টিভি / প্রজেক্টর</button>
+      
+      <!-- লাইভ মিরর কাস্ট অপশন -->
+      <button class="device-btn" onclick="openMirrorCastSubMenu()" style="background: linear-gradient(135deg, #1b4d3e, #0f2b23); border-color: #2ecc71; color: #a3f7bf; margin-top: 14px;">
+        📡 লাইভ মিরর কাস্ট (ল্যাপটপ ⇋ মোবাইল)
+      </button>
+
+      <button class="device-btn" onclick="closeDeviceModal()" style="background: #240a0a; border-color: #551515; color: #aaa; margin-top: 8px; font-size: 0.85rem; padding: 8px;">❌ বাতিল / বন্ধ করুন</button>
+    </div>
+
+    <!-- লাইভ মিরর কাস্ট সাব-মেনু -->
+    <div id="mirrorCastSubMenu" style="display: none;">
+      <h2 style="color: var(--gold); font-size: 1.2rem; margin-bottom: 4px;">📡 লাইভ মিরর কাস্ট</h2>
+      <p style="font-size: 0.8rem; color: #ffd89b; margin-bottom: 12px;">এই ডিভাইসের ভূমিকা নির্বাচন করুন:</p>
+
+      <div id="castRoleSelectArea">
+        <button class="device-btn" onclick="setupAsLaptopDisplay()" style="background: #0e4429; border-color: #27ae60;">📽️ এটি ল্যাপটপ (প্রজেক্টর ডিসপ্লে)</button>
+        <button class="device-btn" onclick="setupAsMobileRemote()" style="background: #4a1212; border-color: #c0392b;">📱 এটি মোবাইল (সঞ্চালক রিমোট)</button>
+      </div>
+
+      <!-- ল্যাপটপ পিন প্রদর্শন -->
+      <div id="laptopPinShowArea" style="display: none; margin-top: 10px;">
+        <p style="font-size: 0.8rem; color: #ccc;">মোবাইলে এই ৪ ডিজিট পিনটি দিন:</p>
+        <div id="castPinCode" style="font-size: 2rem; color: var(--gold); font-weight: 900; letter-spacing: 5px; margin: 8px 0; background: #140303; padding: 6px; border-radius: 8px; border: 1.5px dashed var(--gold);">----</div>
+        <p style="font-size: 0.72rem; color: #88ff88;">মোবাইল সংযুক্ত হলে এই পর্দা নিজ থেকেই সরে যাবে</p>
+      </div>
+
+      <!-- মোবাইল পিন ইনপুট -->
+      <div id="mobilePinInputArea" style="display: none; margin-top: 10px;">
+        <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 6px;">ল্যাপটপে দেখানো ৪ সংখ্যার পিন লিখুন:</p>
+        <input type="text" id="castPinInput" placeholder="৪ ডিজিট পিন" maxlength="4" style="width: 140px; text-align: center; font-size: 1.2rem; letter-spacing: 3px; font-weight: bold; margin-bottom: 8px;">
+        <button class="device-btn" onclick="connectMobileToLaptop()" style="background: var(--gold); color: #120303; width: 140px; margin: 0 auto; padding: 8px;">কানেক্ট করুন</button>
+      </div>
+
+      <div id="castStatusText" style="font-size: 0.78rem; color: #00ff88; margin-top: 8px;"></div>
+
+      <!-- সাব-মেনুর ব্যাক বাটন -->
+      <button class="device-btn" onclick="backToNormalScreenMenu()" style="background: #1e0909; border-color: #661a1a; color: #ffcccc; margin-top: 14px; padding: 8px; font-size: 0.85rem;">
+        🔙 ফিরে যান (সাধারণ মোড)
+      </button>
+    </div>
   </div>
 </div>
 
@@ -1468,15 +1515,12 @@ function switchView(viewName) {
 }
 
   
-/* লাকি ড্র লজিক: বড় স্ক্রিনে ৩ সেকেন্ড ঘুরবে এবং ২ সেকেন্ড বিজয়ী নম্বর দেখাবে */
+/* লাকি ড্র লজিক: হাইব্রিড সিঙ্ক এবং সাধারণ মোড সমর্থিত */
 let isSpinning = false;
-function spinLuckySet() {
+function spinLuckySet(forcedTargetSet = null) {
   if (isSpinning) return;
 
-  // ১ম রাউন্ডে ইতিমধ্যে খেলা হয়ে যাওয়া সেটগুলো বের করা
   const playedSets = new Set(mainLeaderboard.map(p => p.set));
-  
-  // এখনও যে সেটগুলো খেলা হয়নি (১ থেকে ৫০)
   const availableSets = [];
   for (let i = 1; i <= ALL_SETS.length; i++) {
     if (!playedSets.has(i)) {
@@ -1485,8 +1529,20 @@ function spinLuckySet() {
   }
 
   if (availableSets.length === 0) {
-    showToast("⚠️ সব ৫০টি সেট খেলা হয়ে গেছে!");
+    showToast("⚠️ সব ৫০টি সেট খেলা হয়ে গেছে!");
     return;
+  }
+
+  // বিজয়ী সেট নির্ধারণ
+  let finalChosenSet;
+  if (forcedTargetSet !== null) {
+    finalChosenSet = forcedTargetSet;
+  } else {
+    finalChosenSet = availableSets[Math.floor(Math.random() * availableSets.length)];
+    // মোবাইল যদি লাইভ কাস্ট মোডে থাকে তবে ল্যাপটপে নির্দিষ্ট বিজয়ী সেট পাঠানো
+    if (isLiveCastActive && isMobileController) {
+      sendPeerAction({ type: 'SPIN_LUCKY', targetSet: finalChosenSet });
+    }
   }
 
   isSpinning = true;
@@ -1496,14 +1552,14 @@ function spinLuckySet() {
   const slotDisplay = document.getElementById('luckySlotNum');
   const spinBtn = document.getElementById('btnLuckySpin');
 
-  spinBtn.disabled = true;
+  if (spinBtn) spinBtn.disabled = true;
   bigSlot.classList.remove('winner-pulse');
   bigSub.textContent = "ভাগ্যের চাকা ঘুরছে...";
   bigSub.style.color = "#ffd89b";
-  overlay.style.display = 'flex'; // বড় স্ক্রিন চালু
+  overlay.style.display = 'flex';
 
-  const durationMs = 3000; // ঠিক ৩ সেকেন্ড ঘুরবে
-  const intervalMs = 60;   // দ্রুত নম্বর পরিবর্তন
+  const durationMs = 3000;
+  const intervalMs = 60;
   const startTime = performance.now();
 
   const spinInterval = setInterval(() => {
@@ -1517,28 +1573,25 @@ function spinLuckySet() {
     if (elapsed >= durationMs) {
       clearInterval(spinInterval);
 
-      // চূড়ান্ত সেট নির্ধারণ
-      const finalChosenSet = availableSets[Math.floor(Math.random() * availableSets.length)];
+      // উভয়ের পর্দায় একই চূড়ান্ত বিজয়ী নম্বর সেট হবে
       bigSlot.textContent = finalChosenSet;
       if (slotDisplay) slotDisplay.textContent = finalChosenSet;
       
       bigSlot.classList.add('winner-pulse');
       bigSub.textContent = `🎉 সেট নম্বর ${finalChosenSet} নির্ধারিত হলো!`;
-      bigSub.style.color = "#00ff88";
+      bigSub.color = "#00ff88";
 
-      // সেট আপডেট
       currentSetIndex = finalChosenSet - 1;
       document.getElementById('setSelector').value = currentSetIndex;
       resetCurrentRound();
 
       playTone(1400, 0.45);
 
-      // ঠিক ২ সেকেন্ড বড় স্ক্রিনে ফাইনাল নম্বর দেখানোর পর মূল স্ক্রিনে ফেরা
       setTimeout(() => {
         overlay.style.display = 'none';
         bigSlot.classList.remove('winner-pulse');
         showToast(`🎉 সেট নম্বর ${finalChosenSet} নির্ধারিত হলো!`);
-        spinBtn.disabled = false;
+        if (spinBtn) spinBtn.disabled = false;
         isSpinning = false;
       }, 2000);
     }
@@ -1553,6 +1606,270 @@ window.onload = () => {
   if (savedMode) {
     applyScreenMode(savedMode);
   }
+};
+  /* ======================== UI মেনু নেভিগেশন ======================== */
+function closeDeviceModal() {
+  document.getElementById('deviceModal').style.display = 'none';
+}
+
+function openMirrorCastSubMenu() {
+  document.getElementById('normalScreenMenu').style.display = 'none';
+  document.getElementById('mirrorCastSubMenu').style.display = 'block';
+  document.getElementById('castRoleSelectArea').style.display = 'block';
+  document.getElementById('laptopPinShowArea').style.display = 'none';
+  document.getElementById('mobilePinInputArea').style.display = 'none';
+  document.getElementById('castStatusText').textContent = '';
+}
+
+function backToNormalScreenMenu() {
+  document.getElementById('mirrorCastSubMenu').style.display = 'none';
+  document.getElementById('normalScreenMenu').style.display = 'block';
+}
+
+/* ==================== ফায়ারবেস কনফিগারেশন ==================== */
+// আপনার ফায়ারবেস কনসোল থেকে পাওয়া কনফিগ এখানে বসান
+const firebaseConfig = {
+  apiKey: "AIzaSyDpsQHERYbbw5Bo6DI0dUhYbkJIHPuwS0w",
+  authDomain: "njc-sobder-khela.firebaseapp.com",
+  databaseURL: "https://njc-sobder-khela-default-rtdb.firebaseio.com",
+  projectId: "njc-sobder-khela",
+  storageBucket: "njc-sobder-khela.firebasestorage.app",
+  messagingSenderId: "365512109122",
+  appId: "1:365512109122:web:3129c27524b3d1ae2711db",
+  measurementId: "G-WRL5P0TG8G"
+};
+
+let fbDb = null;
+try {
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  fbDb = firebase.database();
+} catch(e) {
+  console.log("Firebase init error:", e);
+}
+
+// ফায়ারবেসে লিডারবোর্ড সিঙ্ক ফাংশন
+function pushDataToFirebase() {
+  if (!fbDb) return;
+  fbDb.ref('khela_hybrid_data').set({
+    mainLeaderboard: mainLeaderboard,
+    tieLeaderboard: tieLeaderboard,
+    finalWinners: finalWinners,
+    lastUpdate: Date.now()
+  });
+}
+
+function listenFirebaseData() {
+  if (!fbDb) return;
+  fbDb.ref('khela_hybrid_data').on('value', (snapshot) => {
+    const val = snapshot.val();
+    if (val) {
+      if (val.mainLeaderboard) {
+        mainLeaderboard = val.mainLeaderboard;
+        localStorage.setItem('khela_main_lb_v9', JSON.stringify(mainLeaderboard));
+        updateMainLeaderboard();
+      }
+      if (val.tieLeaderboard) {
+        tieLeaderboard = val.tieLeaderboard;
+        localStorage.setItem('khela_tie_lb_v9', JSON.stringify(tieLeaderboard));
+        updateTieBoard();
+      }
+      if (val.finalWinners) {
+        finalWinners = val.finalWinners;
+        localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
+        updateFinalWinners();
+      }
+    }
+  });
+}
+
+/* ================= PeerJS লাইভ গেমবোর্ড মিররিং ================= */
+let castPeer = null;
+let castConn = null;
+let isLiveCastActive = false;
+let isMobileController = false;
+
+// ল্যাপটপ ডিসপ্লে প্রস্তুত করা
+function setupAsLaptopDisplay() {
+  applyScreenMode('tv');
+  document.getElementById('castRoleSelectArea').style.display = 'none';
+  document.getElementById('laptopPinShowArea').style.display = 'block';
+
+  const pin = Math.floor(1000 + Math.random() * 9000).toString();
+  document.getElementById('castPinCode').textContent = pin;
+
+  castPeer = new Peer('khela-live-' + pin);
+
+  castPeer.on('connection', (conn) => {
+    castConn = conn;
+    isLiveCastActive = true;
+    document.getElementById('deviceModal').style.display = 'none';
+    showToast("✅ মোবাইল মিরর সংযুক্ত হয়েছে!");
+
+    // ল্যাপটপ ক্লাউড ডেটা লিসেন করা শুরু করবে
+    listenFirebaseData();
+
+    // মোবাইল থেকে লাইভ গেমবোর্ড ইভেন্ট গ্রহণ
+    castConn.on('data', (action) => {
+      handleLivePeerAction(action);
+    });
+  });
+}
+
+// মোবাইল কন্ট্রোলার প্রস্তুত করা
+function setupAsMobileRemote() {
+  applyScreenMode('mobile');
+  document.getElementById('castRoleSelectArea').style.display = 'none';
+  document.getElementById('mobilePinInputArea').style.display = 'block';
+}
+
+function connectMobileToLaptop() {
+  const pin = document.getElementById('castPinInput').value.trim();
+  if (pin.length !== 4) {
+    showToast("⚠️ সঠিক ৪ সংখ্যার পিন দিন!");
+    return;
+  }
+
+  document.getElementById('castStatusText').textContent = "কানেক্ট হচ্ছে...";
+  isMobileController = true;
+
+  castPeer = new Peer();
+  castPeer.on('open', () => {
+    // Zero latency UDP-like ডেটা চ্যানেল
+    castConn = castPeer.connect('khela-live-' + pin, { reliable: false });
+
+    castConn.on('open', () => {
+      isLiveCastActive = true;
+      document.getElementById('deviceModal').style.display = 'none';
+      showToast("✅ ল্যাপটপের সাথে মিরর কাস্ট শুরু!");
+    });
+  });
+}
+
+// মোবাইল থেকে ল্যাপটপে লাইভ সংকেত পাঠানো
+function sendPeerAction(act) {
+  if (isLiveCastActive && isMobileController && castConn && castConn.open) {
+    castConn.send(act);
+  }
+}
+
+// ল্যাপটপে লাইভ সংকেত অনুযায়ী গেমবোর্ড চালানো
+function handleLivePeerAction(act) {
+  if (act.type === 'WORD_CLICK') {
+    const tiles = document.querySelectorAll('#wordsContainer .word-tile');
+    tiles.forEach(tile => {
+      if (tile.textContent.trim() === act.word) {
+        onWordClicked(act.word, tile);
+      }
+    });
+  } else if (act.type === 'START_MEMO') {
+    document.getElementById('pName').value = act.name;
+    document.getElementById('pAge').value = act.age;
+    startMemorizePhase();
+  } else if (act.type === 'START_RECALL') {
+    startRecallPhase();
+  } else if (act.type === 'PAUSE_TOGGLE') {
+    togglePause();
+  } else if (act.type === 'RESET_ROUND') {
+    resetCurrentRound();
+  } else if (act.type === 'REVEAL_PLATE') {
+    revealWordsPlate();
+  } else if (act.type === 'SPIN_LUCKY') {
+    spinLuckySet(act.targetSet);
+  } else if (act.type === 'SWITCH_VIEW') {
+    switchView(act.view);
+  }
+}
+
+/* ================= মূল ফাংশনে হুক সংযুক্ত করা ================= */
+// ১. লাইভ গেমবোর্ড ইভেন্ট ল্যাপটপে পাঠানো (মোবাইল থেকে)
+const origStartMemorize = startMemorizePhase;
+startMemorizePhase = function() {
+  origStartMemorize();
+  sendPeerAction({
+    type: 'START_MEMO',
+    name: document.getElementById('pName').value,
+    age: document.getElementById('pAge').value
+  });
+};
+
+const origStartRecall = startRecallPhase;
+startRecallPhase = function() {
+  origStartRecall();
+  sendPeerAction({ type: 'START_RECALL' });
+};
+
+const origTogglePause = togglePause;
+togglePause = function() {
+  origTogglePause();
+  sendPeerAction({ type: 'PAUSE_TOGGLE' });
+};
+
+const origResetCurrentRound = resetCurrentRound;
+resetCurrentRound = function() {
+  origResetCurrentRound();
+  sendPeerAction({ type: 'RESET_ROUND' });
+};
+
+const origRevealWordsPlate = revealWordsPlate;
+revealWordsPlate = function() {
+  origRevealWordsPlate();
+  sendPeerAction({ type: 'REVEAL_PLATE' });
+};
+
+const origOnWordClicked = onWordClicked;
+onWordClicked = function(word, tileElement) {
+  origOnWordClicked(word, tileElement);
+  sendPeerAction({ type: 'WORD_CLICK', word: word });
+};
+
+const origSwitchView = switchView;
+switchView = function(viewName) {
+  origSwitchView(viewName);
+  sendPeerAction({ type: 'SWITCH_VIEW', view: viewName });
+};
+
+// ২. স্কোর সেভ বা ডাটা বদলালে ফায়ারবেসে পুশ করা (স্থায়ী ক্লাউড ডেটা)
+const origSavePlayerScore = savePlayerScore;
+savePlayerScore = function() {
+  origSavePlayerScore();
+  pushDataToFirebase();
+};
+
+const origSendSelectedToTieBoard = sendSelectedToTieBoard;
+  const origReTieSelectedPlayers = reTieSelectedPlayers;
+reTieSelectedPlayers = function() {
+  origReTieSelectedPlayers();
+  pushDataToFirebase();
+};
+sendSelectedToTieBoard = function() {
+  origSendSelectedToTieBoard();
+  pushDataToFirebase();
+};
+
+const origAssignRankDirectFromMain = assignRankDirectFromMain;
+assignRankDirectFromMain = function(pName) {
+  origAssignRankDirectFromMain(pName);
+  pushDataToFirebase();
+};
+
+const origAssignFinalPosition = assignFinalPosition;
+assignFinalPosition = function(pName) {
+  origAssignFinalPosition(pName);
+  pushDataToFirebase();
+};
+
+const origRemovePermanently = removePermanentlyFromWinners;
+removePermanentlyFromWinners = function(pName) {
+  origRemovePermanently(pName);
+  pushDataToFirebase();
+};
+
+const origPromptClearAllData = promptClearAllData;
+promptClearAllData = function() {
+  origPromptClearAllData();
+  pushDataToFirebase();
 };
 </script>
 </body>
