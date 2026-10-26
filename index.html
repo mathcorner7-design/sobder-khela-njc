@@ -588,6 +588,88 @@
   0% { transform: scale(0.7); opacity: 0; }
   100% { transform: scale(1); opacity: 1; }
 }
+  /* ফুলস্ক্রিন মেমোরি ডিসপ্লে (পড়ার সময় প্রজেক্টরে প্রদর্শন) */
+#memoFullscreenOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(circle at center, #250707 0%, #0a0101 100%);
+  z-index: 32000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+.memo-top-bar {
+  position: absolute;
+  top: 15px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.memo-title-tag {
+  color: var(--gold);
+  font-size: 1.3rem;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(245, 175, 25, 0.5);
+}
+.memo-corner-timer {
+  background: var(--crimson);
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: 900;
+  padding: 8px 22px;
+  border-radius: 30px;
+  border: 2px solid var(--gold);
+  box-shadow: 0 0 20px rgba(195, 20, 50, 0.8);
+  min-width: 100px;
+  text-align: center;
+}
+.memo-grid-box {
+  width: 100%;
+  max-width: 1100px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 50px;
+}
+.memo-word-card {
+  background: linear-gradient(135deg, #381212, #200606);
+  border: 2.5px solid var(--gold);
+  border-radius: 14px;
+  padding: 24px 8px;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(245, 175, 25, 0.25);
+  animation: popScale 0.4s ease-out forwards;
+}
+
+/* মোবাইলে গ্রিড যাতে অতিরিক্ত সংকুচিত না হয়ে ২ কলামে দেখায় */
+@media (max-width: 650px) {
+  .memo-grid-box {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 40px;
+  }
+  .memo-word-card {
+    font-size: 1.45rem;
+    padding: 16px 6px;
+  }
+  .memo-corner-timer {
+    font-size: 1.3rem;
+    padding: 6px 14px;
+    min-width: 75px;
+  }
+  .memo-title-tag {
+    font-size: 1rem;
+  }
+}
 </style>
 </head>
 <body class="mode-mobile">
@@ -705,6 +787,14 @@
     </button>
   </div>
 </div>
+  <!-- পড়ার সময়ের ফুলস্ক্রিন ওভারলে (প্রজেক্টর ও বড় স্ক্রিনের জন্য) -->
+<div id="memoFullscreenOverlay">
+  <div class="memo-top-bar">
+    <div class="memo-title-tag">📖 মন দিয়ে দেখে মুখস্থ করুন</div>
+    <div class="memo-corner-timer" id="memoCornerTimer">20s</div>
+  </div>
+  <div class="memo-grid-box" id="memoFullscreenGrid"></div>
+</div>
 <div class="app-container">
   <div id="appToast"></div>
 
@@ -765,7 +855,6 @@
     </div>
 
     <!-- শব্দ দেখার বোতাম -->
-    <button class="btn-reveal-words" id="btnRevealWords" onclick="revealWordsPlate()">👁️ শব্দ প্লেট দেখান</button>
     <div class="words-grid" id="wordsContainer"></div>
 
     <button class="btn btn-blue" id="btnSaveScore" style="margin-top: 12px; display: none;" onclick="savePlayerScore()">স্কোর সেভ ও সমাপ্ত করুন</button>
@@ -1124,16 +1213,32 @@ function startMemorizePhase() {
   currentScore = 0;
   recallElapsedMs = 0;
   document.getElementById('liveScore').textContent = "0";
-  document.getElementById('timeTakenText').textContent = "সময়: --";
-  document.getElementById('phaseText').textContent = "পড়ার সময় (২০ সে.)";
-  document.getElementById('subPhaseText').textContent = "শব্দগুলো মাইকে পড়ুন";
+  document.getElementById('timeTakenText').textContent = "সময়: --";
+  document.getElementById('phaseText').textContent = "পড়ার সময় (২০ সে.)";
+  document.getElementById('subPhaseText').textContent = "স্ক্রিন দেখে শব্দ মনে রাখুন";
   document.getElementById('btnMemorize').style.display = 'none';
   document.getElementById('btnPause').style.display = 'block';
 
-  renderWordsGrid();
+  // গেমবোর্ডের গ্রিড এখনো ঢাকা থাকবে
+  const grid = document.getElementById('wordsContainer');
+  if (grid) grid.classList.remove('visible');
+
+  // ফুলস্ক্রিন ওভারলেতে ৮টি বড় শব্দ সাজানো
+  const memoGrid = document.getElementById('memoFullscreenGrid');
+  memoGrid.innerHTML = '';
+  ALL_SETS[currentSetIndex].forEach(word => {
+    const card = document.createElement('div');
+    card.className = 'memo-word-card';
+    card.textContent = word;
+    memoGrid.appendChild(card);
+  });
+
+  // ফুলস্ক্রিন পর্দা চালু করা
+  document.getElementById('memoFullscreenOverlay').style.display = 'flex';
 
   let memSeconds = 20;
   document.getElementById('timerNum').textContent = memSeconds + "s";
+  document.getElementById('memoCornerTimer').textContent = memSeconds + "s";
   document.getElementById('timerNum').classList.remove('heartbeat-active');
   
   clearInterval(currentTimer);
@@ -1142,6 +1247,7 @@ function startMemorizePhase() {
     playClockTick();
     memSeconds--;
     document.getElementById('timerNum').textContent = memSeconds + "s";
+    document.getElementById('memoCornerTimer').textContent = memSeconds + "s";
 
     if (memSeconds <= 0) {
       clearInterval(currentTimer);
@@ -1153,11 +1259,18 @@ function startMemorizePhase() {
 
 function onMemorizeComplete() {
   currentPhase = 'ready_for_recall';
+  // ২০ সেকেন্ড শেষ: ফুলস্ক্রিন পর্দা সরে যাবে
+  document.getElementById('memoFullscreenOverlay').style.display = 'none';
+
   document.getElementById('btnPause').style.display = 'none';
-  document.getElementById('phaseText').textContent = "পড়া শেষ!";
+  document.getElementById('phaseText').textContent = "পড়া শেষ!";
   document.getElementById('subPhaseText').textContent = "প্রতিযোগী তৈরি হলে বোতাম চাপুন";
   document.getElementById('timerNum').textContent = "OK";
   document.getElementById('btnRecall').style.display = 'block';
+
+  // গেমবোর্ডে শব্দগুলো এখনো ঢাকা থাকবে
+  const grid = document.getElementById('wordsContainer');
+  if (grid) grid.classList.remove('visible');
 }
 
 function startRecallPhase() {
@@ -1169,6 +1282,11 @@ function startRecallPhase() {
   document.getElementById('btnSaveScore').style.display = 'block';
   document.getElementById('phaseText').textContent = "উত্তর পর্ব চলছে...";
   document.getElementById('subPhaseText').textContent = "প্রতিযোগী যা বলবে টাচ করুন";
+
+  // উত্তর শুরু হতেই এবার গেমবোর্ডে শব্দ প্লেট খুলে যাবে
+  renderWordsGrid();
+  const grid = document.getElementById('wordsContainer');
+  if (grid) grid.classList.add('visible');
 
   const totalTimeLimitMs = 30000;
   recallStartTime = performance.now();
@@ -1187,7 +1305,7 @@ function startRecallPhase() {
     
     const sec = (remainingMs / 1000).toFixed(2);
     document.getElementById('timerNum').textContent = `${sec}s`;
-    document.getElementById('timeTakenText').textContent = `সময়: ${(recallElapsedMs / 1000).toFixed(2)}s`;
+    document.getElementById('timeTakenText').textContent = `সময়: ${(recallElapsedMs / 1000).toFixed(2)}s`;
 
     const currentSecInt = Math.floor(remainingMs / 1000);
     if (currentSecInt !== lastTickSecond) {
@@ -1300,6 +1418,9 @@ function resetCurrentRound() {
   document.getElementById('btnSaveScore').style.display = 'none';
 
   // শব্দ প্লেট লুকিয়ে রাখা এবং বাটন দৃশ্যমান করা
+  // ফুলস্ক্রিন মেমোরি ডিসপ্লে বন্ধ করা
+  const memoOverlay = document.getElementById('memoFullscreenOverlay');
+  if (memoOverlay) memoOverlay.style.display = 'none';
   const grid = document.getElementById('wordsContainer');
   const revealBtn = document.getElementById('btnRevealWords');
   if (grid) grid.classList.remove('visible');
