@@ -1649,13 +1649,13 @@ try {
   console.log("Firebase init error:", e);
 }
 
-// ফায়ারবেসে লিডারবোর্ড সিঙ্ক ফাংশন
+// ফায়ারবেসে লিডারবোর্ড সিঙ্ক ফাংশন (নাল/খালি ডাটা হ্যান্ডলিং সহ)
 function pushDataToFirebase() {
   if (!fbDb) return;
   fbDb.ref('khela_hybrid_data').set({
-    mainLeaderboard: mainLeaderboard,
-    tieLeaderboard: tieLeaderboard,
-    finalWinners: finalWinners,
+    mainLeaderboard: mainLeaderboard.length > 0 ? mainLeaderboard : null,
+    tieLeaderboard: tieLeaderboard.length > 0 ? tieLeaderboard : null,
+    finalWinners: finalWinners.length > 0 ? finalWinners : null,
     lastUpdate: Date.now()
   });
 }
@@ -1665,21 +1665,29 @@ function listenFirebaseData() {
   fbDb.ref('khela_hybrid_data').on('value', (snapshot) => {
     const val = snapshot.val();
     if (val) {
-      if (val.mainLeaderboard) {
-        mainLeaderboard = val.mainLeaderboard;
-        localStorage.setItem('khela_main_lb_v9', JSON.stringify(mainLeaderboard));
-        updateMainLeaderboard();
-      }
-      if (val.tieLeaderboard) {
-        tieLeaderboard = val.tieLeaderboard;
-        localStorage.setItem('khela_tie_lb_v9', JSON.stringify(tieLeaderboard));
-        updateTieBoard();
-      }
-      if (val.finalWinners) {
-        finalWinners = val.finalWinners;
-        localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
-        updateFinalWinners();
-      }
+      // যদি সার্ভারে ডাটা থাকে তবে আপডেট হবে, আর নাল (ডিলিট) থাকলে খালি হবে
+      mainLeaderboard = val.mainLeaderboard || [];
+      localStorage.setItem('khela_main_lb_v9', JSON.stringify(mainLeaderboard));
+      updateMainLeaderboard();
+
+      tieLeaderboard = val.tieLeaderboard || [];
+      localStorage.setItem('khela_tie_lb_v9', JSON.stringify(tieLeaderboard));
+      updateTieBoard();
+
+      finalWinners = val.finalWinners || [];
+      localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
+      updateFinalWinners();
+    } else {
+      // যদি পুরো নোড ডিলিট হয়ে যায়
+      mainLeaderboard = [];
+      tieLeaderboard = [];
+      finalWinners = [];
+      localStorage.removeItem('khela_main_lb_v9');
+      localStorage.removeItem('khela_tie_lb_v9');
+      localStorage.removeItem('khela_final_win_v9');
+      updateMainLeaderboard();
+      updateTieBoard();
+      updateFinalWinners();
     }
   });
 }
@@ -1830,33 +1838,39 @@ switchView = function(viewName) {
   sendPeerAction({ type: 'SWITCH_VIEW', view: viewName });
 };
 
-// ২. স্কোর সেভ বা ডাটা বদলালে ফায়ারবেসে পুশ করা (স্থায়ী ক্লাউড ডেটা)
+// ২. স্কোর সেভ বা ডাটা বদলালে ফায়ারবেসে পুশ এবং ল্যাপটপ স্ক্রিন সিঙ্ক
 const origSavePlayerScore = savePlayerScore;
 savePlayerScore = function() {
   origSavePlayerScore();
   pushDataToFirebase();
+  // যদি টাই প্লেয়ার সেভ হয় তবে ল্যাপটপ টাই-বোর্ডে যাবে, নয়তো মূল লিডারবোর্ডে যাবে
+  sendPeerAction({ type: 'SWITCH_VIEW', view: (activeTiePlayer ? 'tie' : 'rank') });
 };
 
 const origSendSelectedToTieBoard = sendSelectedToTieBoard;
-  const origReTieSelectedPlayers = reTieSelectedPlayers;
-reTieSelectedPlayers = function() {
-  origReTieSelectedPlayers();
-  pushDataToFirebase();
-};
 sendSelectedToTieBoard = function() {
   origSendSelectedToTieBoard();
   pushDataToFirebase();
+  sendPeerAction({ type: 'SWITCH_VIEW', view: 'tie' });
 };
 
 const origAssignRankDirectFromMain = assignRankDirectFromMain;
 assignRankDirectFromMain = function(pName) {
   origAssignRankDirectFromMain(pName);
   pushDataToFirebase();
+  sendPeerAction({ type: 'SWITCH_VIEW', view: 'final' });
 };
 
 const origAssignFinalPosition = assignFinalPosition;
 assignFinalPosition = function(pName) {
   origAssignFinalPosition(pName);
+  pushDataToFirebase();
+  sendPeerAction({ type: 'SWITCH_VIEW', view: 'final' });
+};
+
+const origReTieSelectedPlayers = reTieSelectedPlayers;
+reTieSelectedPlayers = function() {
+  origReTieSelectedPlayers();
   pushDataToFirebase();
 };
 
