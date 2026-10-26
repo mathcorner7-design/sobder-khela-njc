@@ -1472,11 +1472,15 @@ function updateFinalWinners() {
 }
 
 function removePermanentlyFromWinners(pName) {
-  showConfirm(`${pName}-কে চূড়ান্ত তালিকা থেকে মুছে স্থানটি ফাঁকা করতে চান?`, () => {
+  showConfirm(`${pName}-কে চূড়ান্ত তালিকা থেকে মুছে স্থানটি ফাঁকা করতে চান?`, () => {
     finalWinners = finalWinners.filter(w => w.name !== pName);
     localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
     updateFinalWinners();
-    showToast("স্থান ফাঁকা করা হয়েছে");
+
+    // 'হ্যাঁ' নিশ্চিত করার ঠিক পরেই ফায়ারবেস ক্লাউড আপডেট হবে
+    pushDataToFirebase();
+
+    showToast("স্থান ফাঁকা করা হয়েছে");
   });
 }
 
