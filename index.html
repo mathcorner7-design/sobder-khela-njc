@@ -1494,7 +1494,13 @@ function promptClearAllData() {
     updateMainLeaderboard();
     updateTieBoard();
     updateFinalWinners();
-    showToast("সমস্ত ডাটা মুছে ফেলা হয়েছে");
+
+    // 'হ্যাঁ' চাপার পর সরাসরি ফায়ারবেস থেকে সমস্ত ডেটা ক্লিন করা
+    if (fbDb) {
+      fbDb.ref('khela_hybrid_data').remove();
+    }
+    sendPeerAction({ type: 'SWITCH_VIEW', view: 'rank' });
+    showToast("সমস্ত ডাটা মুছে ফেলা হয়েছে");
   });
 }
 
@@ -1653,12 +1659,25 @@ try {
 }
 
 // ফায়ারবেসে লিডারবোর্ড সিঙ্ক ফাংশন (নাল/খালি ডাটা হ্যান্ডলিং সহ)
+function cleanForFirebase(arr) {
+  if (!arr || !Array.isArray(arr)) return [];
+  return arr.map(item => {
+    const copy = { ...item };
+    // null বা undefined থাকলে ডিফল্ট মান বসানো যাতে ফায়ারবেস রিজেক্ট না করে
+    if (copy.tieScore === null || copy.tieScore === undefined) copy.tieScore = "";
+    if (copy.tieTime === null || copy.tieTime === undefined) copy.tieTime = "";
+    if (copy.tieSet === null || copy.tieSet === undefined) copy.tieSet = "";
+    return copy;
+  });
+}
+
+// ফায়ারবেসে সম্পূর্ণ ডাটা পুশ ফাংশন
 function pushDataToFirebase() {
   if (!fbDb) return;
   fbDb.ref('khela_hybrid_data').set({
-    mainLeaderboard: mainLeaderboard.length > 0 ? mainLeaderboard : null,
-    tieLeaderboard: tieLeaderboard.length > 0 ? tieLeaderboard : null,
-    finalWinners: finalWinners.length > 0 ? finalWinners : null,
+    mainLeaderboard: cleanForFirebase(mainLeaderboard),
+    tieLeaderboard: cleanForFirebase(tieLeaderboard),
+    finalWinners: cleanForFirebase(finalWinners),
     lastUpdate: Date.now()
   });
 }
@@ -1668,20 +1687,30 @@ function listenFirebaseData() {
   fbDb.ref('khela_hybrid_data').on('value', (snapshot) => {
     const val = snapshot.val();
     if (val) {
-      // যদি সার্ভারে ডাটা থাকে তবে আপডেট হবে, আর নাল (ডিলিট) থাকলে খালি হবে
-      mainLeaderboard = val.mainLeaderboard || [];
+      mainLeaderboard = (val.mainLeaderboard || []).map(p => ({
+        ...p,
+        tieScore: (p.tieScore === "" || p.tieScore === undefined) ? null : p.tieScore,
+        tieTime: (p.tieTime === "" || p.tieTime === undefined) ? null : p.tieTime
+      }));
       localStorage.setItem('khela_main_lb_v9', JSON.stringify(mainLeaderboard));
       updateMainLeaderboard();
 
-      tieLeaderboard = val.tieLeaderboard || [];
+      tieLeaderboard = (val.tieLeaderboard || []).map(p => ({
+        ...p,
+        tieScore: (p.tieScore === "" || p.tieScore === undefined) ? null : p.tieScore,
+        tieTime: (p.tieTime === "" || p.tieTime === undefined) ? null : p.tieTime
+      }));
       localStorage.setItem('khela_tie_lb_v9', JSON.stringify(tieLeaderboard));
       updateTieBoard();
 
-      finalWinners = val.finalWinners || [];
+      finalWinners = (val.finalWinners || []).map(p => ({
+        ...p,
+        tieScore: (p.tieScore === "" || p.tieScore === undefined) ? null : p.tieScore,
+        tieTime: (p.tieTime === "" || p.tieTime === undefined) ? null : p.tieTime
+      }));
       localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
       updateFinalWinners();
     } else {
-      // যদি পুরো নোড ডিলিট হয়ে যায়
       mainLeaderboard = [];
       tieLeaderboard = [];
       finalWinners = [];
