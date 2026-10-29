@@ -2835,27 +2835,49 @@ promptClearAllData = function() {
   pushDataToFirebase();
 };
 
+/* স্ক্রিন মোড নির্বাচন লজিক */
+function applyScreenMode(mode) {
+  document.body.className = `mode-${mode}`;
+  document.getElementById('deviceModal').style.display = 'none';
+  localStorage.setItem('khela_screen_mode', mode);
+}
+
+function openDeviceModal() {
+  document.getElementById('deviceModal').style.display = 'flex';
+}
+
+function closeDeviceModal() {
+  document.getElementById('deviceModal').style.display = 'none';
+}
+
 window.onload = () => {
   initSetOptions();
   renderWordsGrid();
+
+  // পূর্বে সেভ করা স্ক্রিন মোড লোড করা
+  const savedMode = localStorage.getItem('khela_screen_mode');
+  if (savedMode) {
+    applyScreenMode(savedMode);
+  }
 
   // পেজ লোড হওয়ামাত্র ফায়ারবেস থেকে লাইভ ডাটা শোনা চালু হবে
   listenFirebaseData();
 };
 </script>
-  <!-- 🪡 সেফটিপিন গেম মেইন র‍্যাপার (২ নম্বর ধাপের মূল স্ক্রিন) -->
+
+<!-- 🪡 সেফটিপিন গেম মেইন র‍্যাপার (২ নম্বর ধাপের মূল স্ক্রিন) -->
 <div id="safetyPinGameWrapper" style="display: none;" class="app-container">
   <header>
     <button class="mode-switch-btn" onclick="backToHomeFromSafetyPin()">🏠</button>
     <h1>🪡 সেফটিপিনের মালা খেলা 🪡</h1>
-    <p>নিউ ঝালাপালা কমিটির রজত জয়ন্তী বিশেষ সেফটিপিন কম্পিটিশন</p>
+    <p>নিউ ঝালাপালা কমিটি রজত জয়ন্তী বিশেষ সেফটিপিন কম্পিটিশন</p>
   </header>
 
-  <!-- সাব-ট্যাব গ্রুপ (গেম বোর্ড, লিডারবোর্ড, চূড়ান্ত ফলাফল) -->
+  <!-- সাব-ট্যাব গ্রুপ (গেম বোর্ড, লিডারবোর্ড, চূড়ান্ত ফলাফল) -->
   <div class="tab-group">
     <button class="tab-btn active" id="spTabGameBtn" onclick="switchSpView('game')">🎮 গেম বোর্ড</button>
     <button class="tab-btn" id="spTabRankBtn" onclick="switchSpView('rank')">📋 লিডারবোর্ড</button>
-    <button class="tab-btn" id="spTabFinalBtn" onclick="switchSpView('final')">🏆 চূড়ান্ত ফলাফল</button>
+    <button class="tab-btn" id="spTabFinalBtn" onclick="switchSpView('final')">🏆 চূড়ান্ত ফলাফল</button>
   </div>
 
   <!-- ১. গেম বোর্ড ভিউ -->
@@ -2865,10 +2887,10 @@ window.onload = () => {
       <input type="number" id="spPAge" style="flex: 1;" placeholder="বয়স" min="1" max="100">
     </div>
 
-    <!-- প্রজেক্টরে বড় করে দেখানোর জন্য ইনফিনিট স্টপওয়াচ ব্যানার -->
+    <!-- প্রজেক্টরে বড় করে দেখানোর জন্য ইনফিনিট স্টপওয়াচ ব্যানার -->
     <div class="timer-banner" style="flex-direction: column; padding: 20px; text-align: center;">
       <div id="spPhaseText" class="phase-badge" style="margin-bottom: 8px;">স্টপওয়াচ প্রস্তুত</div>
-      <!-- মিলি সেকেন্ড সহ বড় স্টপওয়াচ ডিসপ্লে -->
+      <!-- মিলি সেকেন্ড সহ বড় স্টপওয়াচ ডিসপ্লে -->
       <div id="spTimerDisplay" class="timer-circle" style="font-size: 2.8rem; padding: 12px 25px; min-width: 220px; border-radius: 16px; background: #220808; border: 2px solid var(--gold);">00:00.00</div>
     </div>
 
@@ -2886,14 +2908,14 @@ window.onload = () => {
   <!-- ২. লিডারবোর্ড ভিউ -->
   <div id="spRankView" class="card" style="display: none;">
     <h3 style="color: var(--gold); font-size: 1rem; margin-bottom: 8px;">📋 সেফটিপিন মালা - লিডারবোর্ড</h3>
-    <p style="font-size:0.75rem; color:#bbb; margin-bottom: 8px;">কম সময়ে মালা তৈরি করলে নাম স্বয়ংক্রিয়ভাবে উপরে উঠে যাবে:</p>
+    <p style="font-size:0.75rem; color:#bbb; margin-bottom: 8px;">কম সময়ে মালা তৈরি করলে নাম স্বয়ংক্রিয়ভাবে উপরে উঠে যাবে:</p>
 
     <table class="rank-table">
       <thead>
         <tr>
           <th>ক্রম</th>
-          <th>নাম (বয়স)</th>
-          <th>সময় (সেকেন্ড)</th>
+          <th>নাম (বয়স)</th>
+          <th>সময় (সেকেন্ড)</th>
           <th>চূড়ান্ত স্থান দিন</th>
         </tr>
       </thead>
@@ -2903,7 +2925,7 @@ window.onload = () => {
     <button class="btn btn-danger" style="margin-top: 15px;" onclick="promptClearSpData()">সব ডাটা মুছুন</button>
   </div>
 
-  <!-- ৩. চূড়ান্ত ফলাফল ভিউ -->
+  <!-- ۳. চূড়ান্ত ফলাফল ভিউ -->
   <div id="spFinalView" class="card" style="display: none;">
     <h3 style="color: var(--gold); text-align: center; margin-bottom: 10px;">🌟 সেফটিপিন খেলা - চূড়ান্ত বিজয়ী তালিকা 🌟</h3>
     <div id="spFinalWinnersContainer"></div>
