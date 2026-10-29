@@ -858,6 +858,47 @@
       </button>
     </div>
   </div> <!-- #homeScreenView এর শেষ ট্যাগ -->
+    <!-- 🪡 সেফটিপিন গেমের প্রারম্ভিক মেনু পপআপ -->
+<div id="safetyPinMenuModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 25000; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(5px);">
+  <div class="modal-box" style="max-width: 360px; width: 100%; text-align: center; padding: 22px;">
+    <h3 style="color: var(--gold); font-size: 1.25rem; margin-bottom: 8px;">🪡 সেফটিপিনের মালা খেলা</h3>
+    <p style="font-size: 0.85rem; color: #ffd89b; margin-bottom: 18px;">আপনি কী দেখতে চান?</p>
+    
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <button class="device-btn" onclick="openSpRulesModal()" style="background: #381212; border-color: var(--gold); color: #fff;">
+        📜 নিয়মাবলী দেখুন
+      </button>
+      <button class="device-btn" onclick="startSafetyPinGameView()" style="background: linear-gradient(135deg, #00b09b, #96c93d); border-color: #2ecc71; color: #052b0d; font-weight: 900;">
+        🎮 খেলা শুরু করুন
+      </button>
+      <button class="device-btn" onclick="closeSafetyPinMenuModal()" style="background: #240a0a; border-color: #551515; color: #aaa; font-size: 0.85rem; padding: 8px; margin-top: 5px;">
+        ❌ বন্ধ করুন
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- 📜 নিয়মাবলী পপআপ বক্স (স্ক্রোল করার ব্যবস্থা সহ) -->
+<div id="spRulesModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 26000; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(5px);">
+  <div class="modal-box" style="max-width: 420px; width: 100%; text-align: left; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+      <h3 style="color: var(--gold); font-size: 1.15rem;">📖 খেলার নিয়মাবলী</h3>
+      <button onclick="closeSpRulesModal()" style="background: none; border: none; color: var(--gold); font-size: 1.2rem; cursor: pointer; font-weight: bold;">✕</button>
+    </div>
+    
+    <div style="max-height: 250px; overflow-y: auto; background: #140303; border: 1px solid #5a1919; border-radius: 8px; padding: 12px; font-size: 0.88rem; color: #ffeedd; line-height: 1.6; white-space: pre-line;">
+১) টেবিলে ১০টি সেফটিপিন রাখা থাকবে।
+
+২) প্রতিযোগীকে একটি সেফটিপিন তুলে তার ছিদ্রে অপর একটি সেফটিপিন প্রবেশ করাতে হবে। 
+
+৩) এভাবে ওই ১০টি সেফটিপিন দিয়ে মালা তৈরি করতে হবে এবং প্রতিযোগী ওই মালা তৈরি করতে কত সময় নিল তা নথিভুক্ত করা হবে।
+
+৪) গৃহীত সময়ের উর্ধ্বক্রমের ভিত্তিতে প্রথম দ্বিতীয় ও তৃতীয় স্থানাধিকারী নির্বাচন করা হবে।
+    </div>
+
+    <button class="btn" onclick="closeSpRulesModal()" style="margin-top: 15px; width: 100%; padding: 10px;">ফিরে যান</button>
+  </div>
+</div>
   </div>
 
   <!-- আসল গেম ভিউ (শুরুতে ঢাকা থাকবে, 'স্মৃতির খেলা' ক্লিক করলে খুলবে) -->
@@ -1302,6 +1343,30 @@ function promptClearSpData() {
     updateSpFinalWinners();
     showToast("সমস্ত ডাটা মুছে ফেলা হয়েছে");
   });
+}
+  /* ========================================================
+   🪡 সেফটিপিন গেম মেনু ও নিয়মাবলী পপআপ কন্ট্রোল
+   ======================================================== */
+function openSafetyPinMenuModal() {
+  document.getElementById('safetyPinMenuModal').style.display = 'flex';
+}
+
+function closeSafetyPinMenuModal() {
+  document.getElementById('safetyPinMenuModal').style.display = 'none';
+}
+
+function openSpRulesModal() {
+  document.getElementById('spRulesModal').style.display = 'flex';
+}
+
+function closeSpRulesModal() {
+  document.getElementById('spRulesModal').style.display = 'none';
+}
+
+function startSafetyPinGameView() {
+  document.getElementById('safetyPinMenuModal').style.display = 'none';
+  document.getElementById('homeScreenView').style.display = 'none';
+  document.getElementById('safetyPinGameWrapper').style.display = 'block';
 }
 let currentSetIndex = 0;
 let currentTimer = null;
