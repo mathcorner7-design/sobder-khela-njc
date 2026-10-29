@@ -33,42 +33,31 @@
     --grid-cols: repeat(4, 1fr);
     --base-font: 17px;
   }
-  /* ল্যাপটপ / প্রজেক্টর মোড: নিখুঁত ফ্লেক্স লেআউট ফিক্স */
+  /* ল্যাপটপ / প্রজেক্টর মোড: পুরো স্ক্রিনের উচ্চতা ও চওড়ায় সমানভাবে ছড়িয়ে যাওয়া */
   body.mode-tv {
     --container-max: 1250px;
     --grid-cols: repeat(4, 1fr);
     --base-font: 18px;
-    min-height: 100vh;
-    padding: 15px 20px;
+    height: 100vh;
+    padding: 12px 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
+    justify-content: stretch;
     overflow-y: auto;
   }
   body.mode-tv .app-container {
-    width: 100%;
-    max-width: var(--container-max);
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: 12px;
-  }
-  body.mode-tv #homeScreenView {
-    width: 100%;
-    min-height: 85vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  body.mode-tv #gameMainWrapper {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+    height: 100%;
   }
   body.mode-tv .card {
+    flex: 1;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
   }
   body.mode-tv .word-tile {
     min-height: 75px;
@@ -822,114 +811,6 @@
     </div>
   </div>
 
-  <div class="app-container">
-  <div id="appToast"></div>
-
-  <!-- হোম স্ক্রিন / মেইন মেনু ভিউ -->
-  <div id="homeScreenView" class="card" style="background: linear-gradient(135deg, #2b0808, #120303, #3a0007); border: 2.5px solid var(--gold); text-align: center; padding: 25px 15px; box-shadow: 0 0 35px rgba(245, 175, 25, 0.35);">
-    
-    <!-- রজত জয়ন্তী বিশেষ আকর্ষণ ব্যানার -->
-    <div style="background: linear-gradient(135deg, rgba(195,20,50,0.4), rgba(245,175,25,0.25)); border: 2px solid var(--gold); border-radius: 14px; padding: 18px 10px; margin-bottom: 22px; box-shadow: 0 4px 20px rgba(0,0,0,0.6);">
-      <h2 style="color: var(--gold); font-size: 1.4rem; font-weight: 950; text-shadow: 0 2px 8px rgba(0,0,0,0.9); line-height: 1.4; letter-spacing: 0.5px;">
-        নিউ ঝালাপালা কমিটি প্রযোজিত রজত জয়ন্তী উপলক্ষে আয়োজিত বিশেষ আকর্ষণীয় খেলা
-      </h2>
-    </div>
-
-    <p style="color: #ffd89b; font-size: 0.95rem; margin-bottom: 20px; font-weight: bold; letter-spacing: 1px;">নিচের যেকোনো একটি খেলায় প্রবেশ করুন:</p>
-
-    <!-- তিনটি গেমের অপশন বাটন -->
-    <div style="display: flex; flex-direction: column; gap: 14px; max-width: 400px; margin: 0 auto 20px auto;">
-     <button class="btn" onclick="openSafetyPinMenuModal()" style="background: linear-gradient(135deg, #ff416c, #ff4b2b); color: #ffffff; font-size: 1.05rem; padding: 15px; border-radius: 12px; border: 1.5px solid #d4af37; box-shadow: 0 4px 15px rgba(255, 65, 108, 0.5);">
-    🪡 সেফটিপিনের মালা ফুটলে আঙুল জ্বালা
-</button>
-
-      <button class="btn" onclick="openSmritirKhela()" style="background: linear-gradient(135deg, #f5af19, #e65c00); font-size: 1.05rem; padding: 15px; border-radius: 12px; border: 1.5px solid #fff; color: #120303; box-shadow: 0 4px 15px rgba(245, 175, 25, 0.5); font-weight: 900;">
-        🧠 স্মৃতির খেলা শব্দের মেলা
-      </button>
-
-      <button class="btn" onclick="showToast('শব্দ ছবির ধাঁধা - শীঘ্রই আসছে!')" style="background: linear-gradient(135deg, #00b09b, #96c93d); font-size: 1.05rem; padding: 15px; border-radius: 12px; border: 1.5px solid #d4af37; box-shadow: 0 4px 15px rgba(0, 176, 155, 0.5); color: #052b0d;">
-        🖼️ শব্দ ছবির ধাঁধা
-      </button>
-    </div>
-    <!-- হোম স্ক্রিনের নিচে ডান কোণায় ডিভাইস ও মিরর সেটিংস বোতাম -->
-    <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
-      <button onclick="openDeviceModal()" style="background: rgba(36, 10, 10, 0.95); border: 1.5px solid var(--gold); color: var(--gold); padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.7); display: flex; align-items: center; gap: 6px;">
-        🖥️
-      </button>
-    </div>
-  </div> <!-- #homeScreenView এর শেষ ট্যাগ -->
-    <!-- 🪡 সেফটিপিন গেমের প্রারম্ভিক মেনু পপআপ -->
-<div id="safetyPinMenuModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); z-index: 25000; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(5px);">
-  <div class="modal-box" style="max-width: 360px; width: 100%; text-align: center; padding: 22px;">
-    <h3 style="color: var(--gold); font-size: 1.25rem; margin-bottom: 8px;">🪡 সেফটিপিনের মালা খেলা</h3>
-    <p style="font-size: 0.85rem; color: #ffd89b; margin-bottom: 18px;">আপনি কী দেখতে চান?</p>
-    
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-      <button class="device-btn" onclick="openSpRulesModal()" style="background: #381212; border-color: var(--gold); color: #fff;">
-        📜 নিয়মাবলী দেখুন
-      </button>
-      <button class="device-btn" onclick="startSafetyPinGameView()" style="background: linear-gradient(135deg, #00b09b, #96c93d); border-color: #2ecc71; color: #052b0d; font-weight: 900;">
-        🎮 খেলা শুরু করুন
-      </button>
-      <button class="device-btn" onclick="closeSafetyPinMenuModal()" style="background: #240a0a; border-color: #551515; color: #aaa; font-size: 0.85rem; padding: 8px; margin-top: 5px;">
-        ❌ বন্ধ করুন
-      </button>
-    </div>
-  </div>
-</div>
-
-    <style>
-  /* প্রজেক্টরে বড় দেখানোর জন্য সেফটিপিন নিয়মাবলী বক্স ফিক্স */
-  #spRulesModal .modal-box {
-    max-width: 850px !important;
-    width: 92% !important;
-    padding: 30px !important;
-    background: linear-gradient(135deg, #2b0b0b, #150303) !important;
-    border: 2.5px solid var(--gold) !important;
-    box-shadow: 0 0 50px rgba(245, 175, 25, 0.4) !important;
-  }
-  #spRulesModal .modal-box h3 {
-    font-size: 1.8rem !important;
-    color: var(--gold) !important;
-  }
-  #spRulesModal .modal-box div[style*="max-height"] {
-    max-height: 50vh !important;
-    font-size: 1.25rem !important;
-    line-height: 1.8 !important;
-    padding: 20px !important;
-    background: #1a0505 !important;
-    border: 1.5px solid #792525 !important;
-  }
-  #spRulesModal .modal-box button.btn {
-    font-size: 1.15rem !important;
-    padding: 14px !important;
-  }
-</style>
-<!-- 📜 নিয়মাবলী পপআপ বক্স (স্ক্রোল করার ব্যবস্থা সহ) -->
-<div id="spRulesModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 26000; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(5px);">
-  <div class="modal-box" style="max-width: 420px; width: 100%; text-align: left; padding: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-      <h3 style="color: var(--gold); font-size: 1.15rem;">📖 খেলার নিয়মাবলী</h3>
-      <button onclick="closeSpRulesModal()" style="background: none; border: none; color: var(--gold); font-size: 1.2rem; cursor: pointer; font-weight: bold;">✕</button>
-    </div>
-    
-    <div style="max-height: 250px; overflow-y: auto; background: #140303; border: 1px solid #5a1919; border-radius: 8px; padding: 12px; font-size: 0.88rem; color: #ffeedd; line-height: 1.6; white-space: pre-line;">
-১) টেবিলে ১০টি সেফটিপিন রাখা থাকবে।
-
-২) প্রতিযোগীকে একটি সেফটিপিন তুলে তার ছিদ্রে অপর একটি সেফটিপিন প্রবেশ করাতে হবে। 
-
-৩) এভাবে ওই ১০টি সেফটিপিন দিয়ে মালা তৈরি করতে হবে এবং প্রতিযোগী ওই মালা তৈরি করতে কত সময় নিল তা নথিভুক্ত করা হবে।
-
-৪) গৃহীত সময়ের উর্ধ্বক্রমের ভিত্তিতে প্রথম দ্বিতীয় ও তৃতীয় স্থানাধিকারী নির্বাচন করা হবে।
-    </div>
-
-    <button class="btn" onclick="closeSpRulesModal()" style="margin-top: 15px; width: 100%; padding: 10px;">ফিরে যান</button>
-  </div>
-</div>
-  </div>
-
-  <!-- আসল গেম ভিউ (শুরুতে ঢাকা থাকবে, 'স্মৃতির খেলা' ক্লিক করলে খুলবে) -->
-  <div id="gameMainWrapper" style="display: none;">
   <header>
     <button class="mode-switch-btn" onclick="openDeviceModal()">🖥️</button>
     <h1>🪔 স্মৃতির খেলা শব্দের মেলা 🪔</h1>
@@ -1036,62 +917,9 @@
     <h3 style="color: var(--gold); text-align: center; margin-bottom: 10px;">🌟 চূড়ান্ত ফলাফল ও বিজয়ী তালিকা 🌟</h3>
     <div id="finalWinnersContainer"></div>
   </div>
-    <!-- হোম স্ক্রিনে ফিরে যাওয়ার বাটন -->
-    <button class="btn btn-warning" style="margin-top: 15px; padding: 10px; font-weight: bold;" onclick="backToHomeScreen()">🏠 হোম মেনুতে ফিরে যান</button>
-  </div>
 </div>
 
 <script>
-  function backToHomeFromSafetyPin() {
-  document.getElementById('safetyPinGameWrapper').style.display = 'none';
-  document.getElementById('homeScreenView').style.display = 'block';
-}
-
-function switchSpView(viewName) {
-  document.getElementById('spGameView').style.display = (viewName === 'game') ? 'block' : 'none';
-  document.getElementById('spRankView').style.display = (viewName === 'rank') ? 'block' : 'none';
-  document.getElementById('spFinalView').style.display = (viewName === 'final') ? 'block' : 'none';
-
-  document.getElementById('spTabGameBtn').classList.toggle('active', viewName === 'game');
-  document.getElementById('spTabRankBtn', viewName === 'rank'); // fixed toggles below
-  document.getElementById('spTabRankBtn').classList.toggle('active', viewName === 'rank');
-  document.getElementById('spTabFinalBtn').classList.toggle('active', viewName === 'final');
-}
- // হোম স্ক্রিন থেকে 'স্মৃতির খেলা শব্দের মেলা' খোলার ফাংশন
-function openSmritirKhela() {
-  document.getElementById('homeScreenView').style.display = 'none';
-  document.getElementById('gameMainWrapper').style.display = 'block';
-  
-  // মোবাইল থেকে ল্যাপটপে শব্দ খেলা খোলার সিগন্যাল পাঠানো
-  sendPeerAction({ type: 'OPEN_SMRITI' });
-}
-
-// গেমের ভেতর থেকে হোম স্ক্রিনে ফিরে যাওয়ার ফাংশন
-function backToHomeScreen() {
-  document.getElementById('gameMainWrapper').style.display = 'none';
-  document.getElementById('homeScreenView').style.display = 'block';
-  
-  // মোবাইল থেকে ল্যাপটপে হোম মেনুতে ফেরার সিগন্যাল পাঠানো
-  sendPeerAction({ type: 'BACK_HOME' });
-}
-
-function startSafetyPinGameView() {
-  document.getElementById('safetyPinMenuModal').style.display = 'none';
-  document.getElementById('homeScreenView').style.display = 'none';
-  document.getElementById('safetyPinGameWrapper').style.display = 'block';
-  
-  // মোবাইল থেকে ল্যাপটপে সেফটিপিন গেম খোলার সিগন্যাল পাঠানো
-  sendPeerAction({ type: 'OPEN_SAFETY_PIN' });
-}
-
-function backToHomeFromSafetyPin() {
-  document.getElementById('safetyPinGameWrapper').style.display = 'none';
-  document.getElementById('homeScreenView').style.display = 'block';
-  
-  // মোবাইল থেকে ল্যাপটপে হোম মেনুতে ফেরার সিগন্যাল পাঠানো
-  sendPeerAction({ type: 'BACK_HOME' });
-}
-
 /* স্ক্রিন মোড নির্বাচন লজিক */
 function applyScreenMode(mode) {
   document.body.className = `mode-${mode}`;
@@ -1157,357 +985,6 @@ const ALL_SETS = [
   /* সেট ৫০ */ ["দোলন", "মৃদঙ্গ", "মেঘমালা", "চিলপাখি", "হাঙর", "চন্দ্রহার", "আমড়া", "বটগাছ"]
 ];
 
-  /* ========================================================
-   🪡 সেফটিপিন গেম - স্টপওয়াচ ও লিডারবোর্ড জাভাস্ক্রিপ্ট লজিক
-   ======================================================== */
-
-let spTimerInterval = null;
-let spStartTime = 0;
-let spElapsedTime = 0;
-let spIsRunning = false;
-let spFinalSeconds = 0;
-
-/* স্থানীয় স্টোরেজ থেকে ডেটাস্টোর লোড করা */
-let spMainLeaderboard = JSON.parse(localStorage.getItem('khela_sp_main_lb_v1') || '[]');
-let spFinalWinners = JSON.parse(localStorage.getItem('khela_sp_final_win_v1') || '[]');
-
-/* ১. স্টপওয়াচ শুরু করুন (Start) */
-function startSpStopwatch() {
-  const nameInput = document.getElementById('spPName');
-  if (!nameInput.value.trim()) {
-    showToast("⚠️ অনুগ্রহ করে আগে প্রতিযোগীর নাম লিখুন!");
-    nameInput.focus();
-    return;
-  }
-
-  if (!spIsRunning) {
-    spIsRunning = true;
-    spStartTime = performance.now() - spElapsedTime;
-    
-    document.getElementById('spBtnStart').style.display = 'none';
-    document.getElementById('spBtnStop').style.display = 'block';
-    document.getElementById('spPhaseText').textContent = "স্টপওয়াচ চলছে...";
-    playTone(1000, 0.15);
-
-    spTimerInterval = setInterval(() => {
-      spElapsedTime = performance.now() - spStartTime;
-      updateSpDisplay(spElapsedTime);
-    }, 10); // প্রতি ১০ মিলিসেকেন্ডে আপডেট হবে
-  }
-}
-
-/* ২. স্টপওয়াচ থামান (Stop / Infinite Timer) */
-function stopSpStopwatch() {
-  if (spIsRunning) {
-    spIsRunning = false;
-    clearInterval(spTimerInterval);
-
-    spFinalSeconds = parseFloat((spElapsedTime / 1000).toFixed(2));
-
-    document.getElementById('spBtnStop').style.display = 'none';
-    document.getElementById('spBtnStart').style.display = 'block';
-    document.getElementById('spBtnStart').textContent = "আবার শুরু করুন";
-    document.getElementById('spBtnSave').style.display = 'block'; // সেভ করার বাটন ভেসে উঠবে
-    document.getElementById('spPhaseText').textContent = `সময় থেমেছে: ${spFinalSeconds}s`;
-    
-    playLoudBuzzer();
-    showToast(`⏱️ সময় রেকর্ড হয়েছে: ${spFinalSeconds} সেকেন্ড`);
-  }
-}
-
-/* ৩. স্টপওয়াচ রিসেট করুন */
-function resetSpStopwatch() {
-  clearInterval(spTimerInterval);
-  spIsRunning = false;
-  spElapsedTime = 0;
-  spFinalSeconds = 0;
-  
-  document.getElementById('spTimerDisplay').textContent = "00:00.00";
-  document.getElementById('spPhaseText').textContent = "স্টপওয়াচ প্রস্তুত";
-  document.getElementById('spBtnStart').style.display = 'block';
-  document.getElementById('spBtnStart').textContent = "শুরু করুন (Start)";
-  document.getElementById('spBtnStop').style.display = 'none';
-  document.getElementById('spBtnSave').style.display = 'none';
-}
-
-/* প্রজেক্টরে বড় করে দেখানোর জন্য টাইম ফরম্যাট (MM:SS.ms) */
-function updateSpDisplay(ms) {
-  const totalSec = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSec / 60);
-  const seconds = totalSec % 60;
-  const milliseconds = Math.floor((ms % 1000) / 10);
-
-  const minStr = String(minutes).padStart(2, '0');
-  const secStr = String(seconds).padStart(2, '0');
-  const msStr = String(milliseconds).padStart(2, '0');
-
-  document.getElementById('spTimerDisplay').textContent = `${minStr}:${secStr}.${msStr}`;
-}
-
-/* ৪. স্কোর সেভ করে লিডারবোর্ডে পাঠানো এবং ফায়ারবেসে সিঙ্ক করা */
-function saveSpScore() {
-  const name = document.getElementById('spPName').value.trim();
-  const age = document.getElementById('spPAge').value.trim() || "--";
-
-  if (!name) {
-    showToast("⚠️ নাম দিন!");
-    return;
-  }
-
-  const entry = {
-    name: name,
-    age: age,
-    timeTaken: spFinalSeconds,
-    timestamp: Date.now()
-  };
-
-  spMainLeaderboard.push(entry);
-  
-  /* উর্ধ্বক্রম বা Ascending Order (কম সময় যার, সে সবার আগে থাকবে) */
-  spMainLeaderboard.sort((a, b) => a.timeTaken - b.timeTaken);
-
-  localStorage.setItem('khela_sp_main_lb_v1', JSON.stringify(spMainLeaderboard));
-  
-  // ফায়ারবেসে ডেটা পুশ করা যাতে অন্য ডিভাইসেও দেখা যায়
-  if (typeof pushDataToFirebase === 'function') {
-    pushDataToFirebase();
-  }
-
-  showToast(`✅ ${name}-এর স্কোর সংরক্ষিত (${spFinalSeconds}s)!`);
-
-  // ইনপুট ও টাইমার পরিষ্কার করে লিডারবোর্ডে চলে যাওয়া
-  document.getElementById('spPName').value = "";
-  document.getElementById('spPAge').value = "";
-  resetSpStopwatch();
-  
-  switchSpView('rank');
-  updateSpLeaderboard();
-}
-
-/* ৫. লিডারবোর্ড টেবিল আপডেট করা */
-function updateSpLeaderboard() {
-  const tbody = document.getElementById('spRankTableBody');
-  if (!tbody) return;
-  tbody.innerHTML = '';
-
-  if (spMainLeaderboard.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="4" style="color:#aaa; text-align:center;">এখনও কোনো রেকর্ড নেই</td></tr>`;
-    return;
-  }
-
-  spMainLeaderboard.forEach((p, index) => {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td style="font-weight:bold; text-align:center;">${index + 1}</td>
-      <td style="font-weight: bold; text-align: left;">${p.name} <span style="font-size:0.75rem; color:#bbb;">(${p.age})</span></td>
-      <td style="font-weight: bold; color: var(--gold); text-align: center;">${p.timeTaken.toFixed(2)}s</td>
-      <td style="text-align: center;">
-        <div style="display:flex; gap:3px; justify-content:center;">
-          <select id="sp_pos_${index}" style="padding:2px; font-size:0.75rem;">
-            <option value="1">১ম</option>
-            <option value="2">২য়</option>
-            <option value="3">৩য়</option>
-            <option value="out">বাদ</option>
-          </select>
-          <button class="btn btn-blue" style="padding:4px 6px; font-size:0.75rem; width:auto;" onclick="assignSpFinalRank(${index})">OK</button>
-        </div>
-      </td>
-    `;
-    tbody.appendChild(row);
-  });
-}
-
-/* ৬. সেফটিপিন খেলার জন্য নিখুঁত ফাইনাল র‍্যাংক লজিক */
-function assignSpFinalRank(index) {
-  const player = spMainLeaderboard[index];
-  const selectElem = document.getElementById(`sp_pos_${index}`);
-  const position = selectElem.value;
-
-  if (position !== "out") {
-    const targetRank = parseInt(position);
-    
-    // চেক করা যে ওই স্থান আগে থেকেই অন্য কেউ নিয়েছে কিনা
-    const existing = spFinalWinners.find(w => w.assignedRank === targetRank);
-    if (existing) {
-      showToast(`❌ ${targetRank}ম স্থানটি ইতিমধ্যেই ${existing.name}-কে দেওয়া আছে!`);
-      return;
-    }
-
-    spFinalWinners = spFinalWinners.filter(w => w.name !== player.name);
-    spFinalWinners.push({
-      ...player,
-      assignedRank: targetRank
-    });
-    localStorage.setItem('khela_sp_final_win_v1', JSON.stringify(spFinalWinners));
-  }
-
-  // লিডারবোর্ড থেকে প্রতিযোগীকে সরিয়ে দেওয়া
-  spMainLeaderboard.splice(index, 1);
-  localStorage.setItem('khela_sp_main_lb_v1', JSON.stringify(spMainLeaderboard));
-
-  // ফায়ারবেসে লাইভ ডাটা পুশ করা যাতে অন্য ডিভাইসেও আপডেট হয়
-  if (typeof pushDataToFirebase === 'function') {
-    pushDataToFirebase();
-  }
-
-  showToast(`${player.name} ${position === "out" ? "বাদ পড়েছেন" : position + " নম্বর স্থান পেয়েছেন"}!`);
-  switchSpView('final');
-  updateSpLeaderboard();
-  updateSpFinalWinners();
-}
-
-/* ৭. চূড়ান্ত ফলাফল रেন্ডার করা */
-function updateSpFinalWinners() {
-  const container = document.getElementById('spFinalWinnersContainer');
-  if (!container) return;
-  container.innerHTML = '';
-
-  if (spFinalWinners.length === 0) {
-    container.innerHTML = `<div style="text-align:center; color:#aaa; padding:20px;">এখনও কোনো চূড়ান্ত বিজয়ী নির্বাচিত হয়নি।</div>`;
-    return;
-  }
-
-  spFinalWinners.sort((a, b) => a.assignedRank - b.assignedRank);
-
-  spFinalWinners.forEach(w => {
-    let borderClass = 'bronze';
-    let medal = '🥉 ৩য় স্থান';
-    if (w.assignedRank === 1) { borderClass = 'gold'; medal = '🥇 ১ম স্থান (চ্যাম্পিয়ন)'; }
-    if (w.assignedRank === 2) { borderClass = 'silver'; medal = '🥈 ২য় স্থান (রানার্স-আপ)'; }
-
-    const card = document.createElement('div');
-    card.className = `winner-card ${borderClass}`;
-    card.innerHTML = `
-      <div style="font-weight:900; font-size:1.05rem; color:var(--gold);">${medal}</div>
-      <div style="font-size:1.2rem; font-weight:bold; color:#fff;">${w.name} <span style="font-size:0.85rem; color:#bbb;">(${w.age} বছর)</span></div>
-      <div style="font-size:0.82rem; color:#e0d0b0; margin-top:2px;">
-        সময় লেগেছে: <strong style="color:var(--gold);">${w.timeTaken.toFixed(2)}s</strong>
-      </div>
-      <button class="btn btn-danger" style="width:auto; padding:3px 8px; font-size:0.7rem; margin-top:6px;" onclick="removeSpWinner('${w.name}')">তালিকা থেকে মুছুন</button>
-    `;
-    container.appendChild(card);
-  });
-}
-
-function removeSpWinner(pName) {
-  spFinalWinners = spFinalWinners.filter(w => w.name !== pName);
-  localStorage.setItem('khela_sp_final_win_v1', JSON.stringify(spFinalWinners));
-  
-  // ফায়ারবেসে শুধু সেফটিপিন ডেটা আপডেট করা
-  if (typeof pushDataToFirebase === 'function') {
-    pushDataToFirebase();
-  }
-  
-  updateSpFinalWinners();
-  showToast("তালিকা থেকে সরানো হয়েছে");
-}
-
-function promptClearSpData() {
-  showConfirm("সেফটিপিন খেলার সমস্ত ডাটা মুছে ফেলতে চান?", () => {
-    localStorage.removeItem('khela_sp_main_lb_v1');
-    localStorage.removeItem('khela_sp_final_win_v1');
-    spMainLeaderboard = [];
-    spFinalWinners = [];
-    
-    updateSpLeaderboard();
-    updateSpFinalWinners();
-
-    // ফায়ারবেস থেকে সেফটিপিনের ডাটা স্থায়ীভাবে মুছে ফেলা ও সিঙ্ক করা
-    if (fbDb) {
-      fbDb.ref('khela_hybrid_data').update({
-        spMainLeaderboard: null,
-        spFinalWinners: null
-      });
-    }
-
-    showToast("সেফটিপিন খেলার সমস্ত ডাটা মুছে ফেলা হয়েছে");
-  });
-}
-
-    showToast("সেফটিপিন খেলার সমস্ত ডাটা মুছে ফেলা হয়েছে");
-  });
-}
-  /* ========================================================
-   🪡 সেফটিপিন গেম মেনু ও নিয়মাবলী পপআপ কন্ট্রোল
-   ======================================================== */
-function openSafetyPinMenuModal() {
-  document.getElementById('safetyPinMenuModal').style.display = 'flex';
-  sendPeerAction({ type: 'OPEN_SP_MENU' });
-}
-
-function closeSafetyPinMenuModal() {
-  document.getElementById('safetyPinMenuModal').style.display = 'none';
-  sendPeerAction({ type: 'CLOSE_SP_MENU' });
-}
-
-function openSpRulesModal() {
-  document.getElementById('spRulesModal').style.display = 'flex';
-  sendPeerAction({ type: 'OPEN_SP_RULES' });
-}
-
-function closeSpRulesModal() {
-  document.getElementById('spRulesModal').style.display = 'none';
-  sendPeerAction({ type: 'CLOSE_SP_RULES' });
-}
-
-function startSafetyPinGameView() {
-  document.getElementById('safetyPinMenuModal').style.display = 'none';
-  document.getElementById('homeScreenView').style.display = 'none';
-  document.getElementById('safetyPinGameWrapper').style.display = 'block';
-  
-  // মোবাইল থেকে ল্যাপটপে সেফটিপিন গেম খোলার সিগন্যাল পাঠানো
-  sendPeerAction({ type: 'OPEN_SAFETY_PIN' });
-}
-
-function backToHomeFromSafetyPin() {
-  document.getElementById('safetyPinGameWrapper').style.display = 'none';
-  document.getElementById('homeScreenView').style.display = 'block';
-  
-  // মোবাইল থেকে ল্যাপটপে হোম মেনুতে ফেরার সিগন্যাল পাঠানো
-  sendPeerAction({ type: 'BACK_HOME' });
-}
-
-function switchSpView(viewName) {
-  document.getElementById('spGameView').style.display = (viewName === 'game') ? 'block' : 'none';
-  document.getElementById('spRankView').style.display = (viewName === 'rank') ? 'block' : 'none';
-  document.getElementById('spFinalView').style.display = (viewName === 'final') ? 'block' : 'none';
-
-  document.getElementById('spTabGameBtn').classList.toggle('active', viewName === 'game');
-  document.getElementById('spTabRankBtn').classList.toggle('active', viewName === 'rank');
-  document.getElementById('spTabFinalBtn').classList.toggle('active', viewName === 'final');
-
-  if (viewName === 'rank') updateSpLeaderboard();
-  if (viewName === 'final') updateSpFinalWinners();
-
-  // মোবাইল থেকে ল্যাপটপে সেফটিপিন ভিউ পরিবর্তনের সিগন্যাল পাঠানো
-  sendPeerAction({ type: 'SWITCH_SP_VIEW', view: viewName });
-}
-
-/* সেফটিপিন স্টপওয়াচ হুক সহ */
-const origStartSpStopwatch = startSpStopwatch;
-startSpStopwatch = function() {
-  origStartSpStopwatch();
-  if (spIsRunning) {
-    sendPeerAction({
-      type: 'SP_START',
-      name: document.getElementById('spPName').value,
-      age: document.getElementById('spPAge').value
-    });
-  }
-};
-
-const origStopSpStopwatch = stopSpStopwatch;
-stopSpStopwatch = function() {
-  origStopSpStopwatch();
-  sendPeerAction({ type: 'SP_STOP' });
-};
-
-const origResetSpStopwatch = resetSpStopwatch;
-resetSpStopwatch = function() {
-  origResetSpStopwatch();
-  sendPeerAction({ type: 'SP_RESET' });
-};
-
 let currentSetIndex = 0;
 let currentTimer = null;
 let currentPhase = 'idle';
@@ -1517,7 +994,7 @@ let answeredWords = new Set();
 
 let recallStartTime = 0;
 let recallElapsedMs = 0;
-let lastWordTimeTakenMs = 0;
+  let lastWordTimeTakenMs = 0;
 let lastTickSecond = -1;
 
 /* ডেটাস্টোর */
@@ -2319,33 +1796,26 @@ function removePermanentlyFromWinners(pName) {
 }
 
 function promptClearAllData() {
-  showConfirm("শব্দ খেলার সমস্ত ডাটা মুছে ফেলতে চান?", () => {
+  showConfirm("সমস্ত ডাটা মুছে সম্পূর্ণ নতুন খেলা শুরু করতে চান?", () => {
     localStorage.removeItem('khela_main_lb_v9');
     localStorage.removeItem('khela_tie_lb_v9');
     localStorage.removeItem('khela_final_win_v9');
-    
     mainLeaderboard = [];
     tieLeaderboard = [];
     finalWinners = [];
     selectedInMain.clear();
     selectedInTie.clear();
     activeTiePlayer = null;
-    
     updateMainLeaderboard();
     updateTieBoard();
     updateFinalWinners();
 
-    // ফায়ারবেসে শুধুমাত্র শব্দ খেলার ডেটা খালি করা (সেফটিপিন অক্ষত থাকবে)
+    // 'হ্যাঁ' চাপার পর সরাসরি ফায়ারবেস থেকে সমস্ত ডেটা ক্লিন করা
     if (fbDb) {
-      fbDb.ref('khela_hybrid_data').update({
-        mainLeaderboard: [],
-        tieLeaderboard: [],
-        finalWinners: []
-      });
+      fbDb.ref('khela_hybrid_data').remove();
     }
-    
     sendPeerAction({ type: 'SWITCH_VIEW', view: 'rank' });
-    showToast("শব্দ খেলার সমস্ত ডাটা মুছে ফেলা হয়েছে");
+    showToast("সমস্ত ডাটা মুছে ফেলা হয়েছে");
   });
 }
 
@@ -2452,9 +1922,11 @@ window.onload = () => {
   initSetOptions();
   renderWordsGrid();
 
-  // পেজ লোড হওয়ামাত্র ফায়ারবেস থেকে লাইভ ডাটা শোনা চালু হবে
-  listenFirebaseData();
-};
+  // পূর্বে সেভ করা স্ক্রিন মোড লোড করা
+  const savedMode = localStorage.getItem('khela_screen_mode');
+  if (savedMode) {
+    applyScreenMode(savedMode);
+  }
 
   // পেজ লোড হওয়ামাত্র ফায়ারবেস থেকে লাইভ ডাটা শোনা চালু হবে
   listenFirebaseData();
@@ -2521,8 +1993,6 @@ function pushDataToFirebase() {
     mainLeaderboard: cleanForFirebase(mainLeaderboard),
     tieLeaderboard: cleanForFirebase(tieLeaderboard),
     finalWinners: cleanForFirebase(finalWinners),
-    spMainLeaderboard: cleanForFirebase(spMainLeaderboard),
-    spFinalWinners: cleanForFirebase(spFinalWinners),
     lastUpdate: Date.now()
   });
 }
@@ -2532,7 +2002,6 @@ function listenFirebaseData() {
   fbDb.ref('khela_hybrid_data').on('value', (snapshot) => {
     const val = snapshot.val();
     if (val) {
-      // স্মৃতির খেলা ডেটা সিঙ্ক
       mainLeaderboard = (val.mainLeaderboard || []).map(p => ({
         ...p,
         tieScore: (p.tieScore === "" || p.tieScore === undefined) ? null : p.tieScore,
@@ -2556,31 +2025,16 @@ function listenFirebaseData() {
       }));
       localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
       updateFinalWinners();
-
-      // সেফটিপিন খেলা ডেটা সিঙ্ক
-      if (val.spMainLeaderboard) {
-        spMainLeaderboard = val.spMainLeaderboard;
-        localStorage.setItem('khela_sp_main_lb_v1', JSON.stringify(spMainLeaderboard));
-        updateSpLeaderboard();
-      }
-      if (val.spFinalWinners) {
-        spFinalWinners = val.spFinalWinners;
-        localStorage.setItem('khela_sp_final_win_v1', JSON.stringify(spFinalWinners));
-        updateSpFinalWinners();
-      }
-
     } else {
       mainLeaderboard = [];
       tieLeaderboard = [];
       finalWinners = [];
-      spMainLeaderboard = [];
-      spFinalWinners = [];
-      localStorage.clear();
+      localStorage.removeItem('khela_main_lb_v9');
+      localStorage.removeItem('khela_tie_lb_v9');
+      localStorage.removeItem('khela_final_win_v9');
       updateMainLeaderboard();
       updateTieBoard();
       updateFinalWinners();
-      updateSpLeaderboard();
-      updateSpFinalWinners();
     }
   });
 }
@@ -2655,6 +2109,7 @@ function sendPeerAction(act) {
   }
 }
 
+// ল্যাপটপে লাইভ সংকেত অনুযায়ী গেমবোর্ড চালানো
 function handleLivePeerAction(act) {
   if (act.type === 'WORD_CLICK') {
     const tiles = document.querySelectorAll('#wordsContainer .word-tile');
@@ -2679,40 +2134,11 @@ function handleLivePeerAction(act) {
     spinLuckySet(act.targetSet);
   } else if (act.type === 'SWITCH_VIEW') {
     switchView(act.view);
-  } else if (act.type === 'SHOW_SUMMARY') {
+    } else if (act.type === 'SHOW_SUMMARY') {
     pendingViewAfterSummary = act.nextView;
     showRoundSummaryModal(act.data);
   } else if (act.type === 'CLOSE_SUMMARY') {
     document.getElementById('roundSummaryModal').style.display = 'none';
-  } else if (act.type === 'OPEN_SAFETY_PIN') {
-    document.getElementById('safetyPinMenuModal').style.display = 'none';
-    document.getElementById('homeScreenView').style.display = 'none';
-    document.getElementById('safetyPinGameWrapper').style.display = 'block';
-  } else if (act.type === 'OPEN_SMRITI') {
-    document.getElementById('homeScreenView').style.display = 'none';
-    document.getElementById('gameMainWrapper').style.display = 'block';
-  } else if (act.type === 'BACK_HOME') {
-    document.getElementById('safetyPinGameWrapper').style.display = 'none';
-    document.getElementById('gameMainWrapper').style.display = 'none';
-    document.getElementById('homeScreenView').style.display = 'block';
-  } else if (act.type === 'SWITCH_SP_VIEW') {
-    switchSpView(act.view);
-  } else if (act.type === 'SP_START') {
-    document.getElementById('spPName').value = act.name;
-    document.getElementById('spPAge').value = act.age;
-    startSpStopwatch();
-  } else if (act.type === 'SP_STOP') {
-    stopSpStopwatch();
-  } else if (act.type === 'SP_RESET') {
-    resetSpStopwatch();
-  } else if (act.type === 'OPEN_SP_MENU') {
-    document.getElementById('safetyPinMenuModal').style.display = 'flex';
-  } else if (act.type === 'CLOSE_SP_MENU') {
-    document.getElementById('safetyPinMenuModal').style.display = 'none';
-  } else if (act.type === 'OPEN_SP_RULES') {
-    document.getElementById('spRulesModal').style.display = 'flex';
-  } else if (act.type === 'CLOSE_SP_RULES') {
-    document.getElementById('spRulesModal').style.display = 'none';
   }
 }
 
@@ -2767,6 +2193,7 @@ switchView = function(viewName) {
 // ২. স্কোর সেভ বা ডাটা বদলালে ফায়ারবেসে পুশ এবং ল্যাপটপ স্ক্রিন সিঙ্ক
 const origSavePlayerScore = savePlayerScore;
 savePlayerScore = function() {
+  // ১. রিসেট হওয়ার আগেই সমস্ত ডেটা ক্যাশ করে নেওয়া
   const capturedName = document.getElementById('pName').value.trim();
   const capturedAge = document.getElementById('pAge').value.trim();
   const capturedSet = currentSetIndex + 1;
@@ -2789,9 +2216,11 @@ savePlayerScore = function() {
     answeredWords: capturedAnswered
   };
 
+  // ২. আগে ল্যাপটপে এবং মোবাইলে বড় রিপোর্ট কার্ড পপআপ দেখানো
   showRoundSummaryModal(summaryData);
   sendPeerAction({ type: 'SHOW_SUMMARY', data: summaryData, nextView: nextTargetView });
 
+  // ৩. এরপর মূল ডাটা সেভ এবং ফায়ারবেসে পুশ
   origSavePlayerScore();
   pushDataToFirebase();
 };
@@ -2834,104 +2263,6 @@ promptClearAllData = function() {
   origPromptClearAllData();
   pushDataToFirebase();
 };
-
-/* স্ক্রিন মোড নির্বাচন লজিক */
-function applyScreenMode(mode) {
-  document.body.className = `mode-${mode}`;
-  document.getElementById('deviceModal').style.display = 'none';
-  localStorage.setItem('khela_screen_mode', mode);
-}
-
-function openDeviceModal() {
-  document.getElementById('deviceModal').style.display = 'flex';
-}
-
-function closeDeviceModal() {
-  document.getElementById('deviceModal').style.display = 'none';
-}
-
-window.onload = () => {
-  initSetOptions();
-  renderWordsGrid();
-
-  // পূর্বে সেভ করা স্ক্রিন মোড লোড করা
-  const savedMode = localStorage.getItem('khela_screen_mode');
-  if (savedMode) {
-    applyScreenMode(savedMode);
-  }
-
-  // পেজ লোড হওয়ামাত্র ফায়ারবেস থেকে লাইভ ডাটা শোনা চালু হবে
-  listenFirebaseData();
-};
 </script>
-
-<!-- 🪡 সেফটিপিন গেম মেইন র‍্যাপার (২ নম্বর ধাপের মূল স্ক্রিন) -->
-<div id="safetyPinGameWrapper" style="display: none;" class="app-container">
-  <header>
-    <button class="mode-switch-btn" onclick="backToHomeFromSafetyPin()">🏠</button>
-    <h1>🪡 সেফটিপিনের মালা খেলা 🪡</h1>
-    <p>নিউ ঝালাপালা কমিটি রজত জয়ন্তী বিশেষ সেফটিপিন কম্পিটিশন</p>
-  </header>
-
-  <!-- সাব-ট্যাব গ্রুপ (গেম বোর্ড, লিডারবোর্ড, চূড়ান্ত ফলাফল) -->
-  <div class="tab-group">
-    <button class="tab-btn active" id="spTabGameBtn" onclick="switchSpView('game')">🎮 গেম বোর্ড</button>
-    <button class="tab-btn" id="spTabRankBtn" onclick="switchSpView('rank')">📋 লিডারবোর্ড</button>
-    <button class="tab-btn" id="spTabFinalBtn" onclick="switchSpView('final')">🏆 চূড়ান্ত ফলাফল</button>
-  </div>
-
-  <!-- ১. গেম বোর্ড ভিউ -->
-  <div id="spGameView" class="card">
-    <div class="input-row">
-      <input type="text" id="spPName" style="flex: 2;" placeholder="প্রতিযোগীর নাম..." autocomplete="off">
-      <input type="number" id="spPAge" style="flex: 1;" placeholder="বয়স" min="1" max="100">
-    </div>
-
-    <!-- প্রজেক্টরে বড় করে দেখানোর জন্য ইনফিনিট স্টপওয়াচ ব্যানার -->
-    <div class="timer-banner" style="flex-direction: column; padding: 20px; text-align: center;">
-      <div id="spPhaseText" class="phase-badge" style="margin-bottom: 8px;">স্টপওয়াচ প্রস্তুত</div>
-      <!-- মিলি সেকেন্ড সহ বড় স্টপওয়াচ ডিসপ্লে -->
-      <div id="spTimerDisplay" class="timer-circle" style="font-size: 2.8rem; padding: 12px 25px; min-width: 220px; border-radius: 16px; background: #220808; border: 2px solid var(--gold);">00:00.00</div>
-    </div>
-
-    <!-- স্টপওয়াচ কন্ট্রোল বাটনগুলো (শুরু, থামা, রিসেট) -->
-    <div style="display: flex; gap: 8px; margin-top: 12px;">
-      <button class="btn btn-start-answer" id="spBtnStart" onclick="startSpStopwatch()">শুরু করুন (Start)</button>
-      <button class="btn btn-warning" id="spBtnStop" onclick="stopSpStopwatch()" style="display: none;">থামান (Stop)</button>
-      <button class="btn btn-danger" onclick="resetSpStopwatch()">রিসেট</button>
-    </div>
-
-    <!-- সেভ করুন বোতাম -->
-    <button class="btn btn-blue" id="spBtnSave" style="margin-top: 12px; display: none;" onclick="saveSpScore()">স্কোর সেভ করুন ও লিডারবোর্ডে পাঠান</button>
-  </div>
-
-  <!-- ২. লিডারবোর্ড ভিউ -->
-  <div id="spRankView" class="card" style="display: none;">
-    <h3 style="color: var(--gold); font-size: 1rem; margin-bottom: 8px;">📋 সেফটিপিন মালা - লিডারবোর্ড</h3>
-    <p style="font-size:0.75rem; color:#bbb; margin-bottom: 8px;">কম সময়ে মালা তৈরি করলে নাম স্বয়ংক্রিয়ভাবে উপরে উঠে যাবে:</p>
-
-    <table class="rank-table">
-      <thead>
-        <tr>
-          <th>ক্রম</th>
-          <th>নাম (বয়স)</th>
-          <th>সময় (সেকেন্ড)</th>
-          <th>চূড়ান্ত স্থান দিন</th>
-        </tr>
-      </thead>
-      <tbody id="spRankTableBody"></tbody>
-    </table>
-
-    <button class="btn btn-danger" style="margin-top: 15px;" onclick="promptClearSpData()">সব ডাটা মুছুন</button>
-  </div>
-
-  <!-- ۳. চূড়ান্ত ফলাফল ভিউ -->
-  <div id="spFinalView" class="card" style="display: none;">
-    <h3 style="color: var(--gold); text-align: center; margin-bottom: 10px;">🌟 সেফটিপিন খেলা - চূড়ান্ত বিজয়ী তালিকা 🌟</h3>
-    <div id="spFinalWinnersContainer"></div>
-  </div>
-
-  <button class="btn btn-warning" style="margin-top: 15px; padding: 10px;" onclick="backToHomeFromSafetyPin()">🏠 হোম মেনুতে ফিরে যান</button>
-</div>
 </body>
 </html>
