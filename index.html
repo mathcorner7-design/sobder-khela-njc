@@ -1368,20 +1368,35 @@ function updateSpFinalWinners() {
 function removeSpWinner(pName) {
   spFinalWinners = spFinalWinners.filter(w => w.name !== pName);
   localStorage.setItem('khela_sp_final_win_v1', JSON.stringify(spFinalWinners));
+  
+  // ফায়ারবেসে শুধু সেফটিপিন ডেটা আপডেট করা
+  if (typeof pushDataToFirebase === 'function') {
+    pushDataToFirebase();
+  }
+  
   updateSpFinalWinners();
-  showToast("তালিকা থেকে সরানো হয়েছে");
+  showToast("তালিকা থেকে সরানো হয়েছে");
 }
 
-/* ৮. সব ডেটা মুছে ফেলা (সব ডেটা মুছুন বোতামের কাজ) */
 function promptClearSpData() {
   showConfirm("সেফটিপিন খেলার সমস্ত ডাটা মুছে ফেলতে চান?", () => {
     localStorage.removeItem('khela_sp_main_lb_v1');
     localStorage.removeItem('khela_sp_final_win_v1');
     spMainLeaderboard = [];
     spFinalWinners = [];
+    
     updateSpLeaderboard();
     updateSpFinalWinners();
-    showToast("সমস্ত ডাটা মুছে ফেলা হয়েছে");
+
+    // ফায়ারবেসে শুধুমাত্র সেফটিপিন খেলার ডেটা খালি করা (শব্দ খেলা অক্ষত থাকবে)
+    if (fbDb) {
+      fbDb.ref('khela_hybrid_data').update({
+        spMainLeaderboard: [],
+        spFinalWinners: []
+      });
+    }
+
+    showToast("সেফটিপিন খেলার সমস্ত ডাটা মুছে ফেলা হয়েছে");
   });
 }
   /* ========================================================
@@ -2219,26 +2234,33 @@ function removePermanentlyFromWinners(pName) {
 }
 
 function promptClearAllData() {
-  showConfirm("সমস্ত ডাটা মুছে সম্পূর্ণ নতুন খেলা শুরু করতে চান?", () => {
+  showConfirm("শব্দ খেলার সমস্ত ডাটা মুছে ফেলতে চান?", () => {
     localStorage.removeItem('khela_main_lb_v9');
     localStorage.removeItem('khela_tie_lb_v9');
     localStorage.removeItem('khela_final_win_v9');
+    
     mainLeaderboard = [];
     tieLeaderboard = [];
     finalWinners = [];
     selectedInMain.clear();
     selectedInTie.clear();
     activeTiePlayer = null;
+    
     updateMainLeaderboard();
     updateTieBoard();
     updateFinalWinners();
 
-    // 'হ্যাঁ' চাপার পর সরাসরি ফায়ারবেস থেকে সমস্ত ডেটা ক্লিন করা
+    // ফায়ারবেসে শুধুমাত্র শব্দ খেলার ডেটা খালি করা (সেফটিপিন অক্ষত থাকবে)
     if (fbDb) {
-      fbDb.ref('khela_hybrid_data').remove();
+      fbDb.ref('khela_hybrid_data').update({
+        mainLeaderboard: [],
+        tieLeaderboard: [],
+        finalWinners: []
+      });
     }
+    
     sendPeerAction({ type: 'SWITCH_VIEW', view: 'rank' });
-    showToast("সমস্ত ডাটা মুছে ফেলা হয়েছে");
+    showToast("শব্দ খেলার সমস্ত ডাটা মুছে ফেলা হয়েছে");
   });
 }
 
