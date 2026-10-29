@@ -33,26 +33,39 @@
     --grid-cols: repeat(4, 1fr);
     --base-font: 17px;
   }
-  /* ল্যাপটপ / প্রজেক্টর মোড: ফিক্সড লেআউট যাতে স্ক্রিন নেমে না যায় */
+  /* Laptop / Projector mode: Puro screen height cover korbe ebong kono space khali thakbe na */
   body.mode-tv {
     --container-max: 1250px;
     --grid-cols: repeat(4, 1fr);
     --base-font: 18px;
-    min-height: 100vh;
-    padding: 20px;
-    display: block;
+    height: 100vh;
+    padding: 12px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
     overflow-y: auto;
   }
   body.mode-tv .app-container {
-    width: 100%;
-    max-width: var(--container-max);
-    margin: 0 auto;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 12px;
+    height: 100%;
+  }
+  body.mode-tv #homeScreenView,
+  body.mode-tv #gameMainWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-sizing: border-box;
   }
   body.mode-tv .card {
-    padding: 25px;
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
   }
   body.mode-tv .word-tile {
     min-height: 75px;
