@@ -2452,11 +2452,9 @@ window.onload = () => {
   initSetOptions();
   renderWordsGrid();
 
-  // পূর্বে সেভ করা স্ক্রিন মোড লোড করা
-  const savedMode = localStorage.getItem('khela_screen_mode');
-  if (savedMode) {
-    applyScreenMode(savedMode);
-  }
+  // পেজ লোড হওয়ামাত্র ফায়ারবেস থেকে লাইভ ডাটা শোনা চালু হবে
+  listenFirebaseData();
+};
 
   // পেজ লোড হওয়ামাত্র ফায়ারবেস থেকে লাইভ ডাটা শোনা চালু হবে
   listenFirebaseData();
