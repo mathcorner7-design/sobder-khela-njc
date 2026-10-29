@@ -1422,7 +1422,60 @@ function startSafetyPinGameView() {
   document.getElementById('safetyPinMenuModal').style.display = 'none';
   document.getElementById('homeScreenView').style.display = 'none';
   document.getElementById('safetyPinGameWrapper').style.display = 'block';
+  
+  // মোবাইল থেকে ল্যাপটপে সেফটিপিন গেম খোলার সিগন্যাল পাঠানো
+  sendPeerAction({ type: 'OPEN_SAFETY_PIN' });
 }
+
+function backToHomeFromSafetyPin() {
+  document.getElementById('safetyPinGameWrapper').style.display = 'none';
+  document.getElementById('homeScreenView').style.display = 'block';
+  
+  // মোবাইল থেকে ল্যাপটপে হোম মেনুতে ফেরার সিগন্যাল পাঠানো
+  sendPeerAction({ type: 'BACK_HOME' });
+}
+
+function switchSpView(viewName) {
+  document.getElementById('spGameView').style.display = (viewName === 'game') ? 'block' : 'none';
+  document.getElementById('spRankView').style.display = (viewName === 'rank') ? 'block' : 'none';
+  document.getElementById('spFinalView').style.display = (viewName === 'final') ? 'block' : 'none';
+
+  document.getElementById('spTabGameBtn').classList.toggle('active', viewName === 'game');
+  document.getElementById('spTabRankBtn').classList.toggle('active', viewName === 'rank');
+  document.getElementById('spTabFinalBtn').classList.toggle('active', viewName === 'final');
+
+  if (viewName === 'rank') updateSpLeaderboard();
+  if (viewName === 'final') updateSpFinalWinners();
+
+  // মোবাইল থেকে ল্যাপটপে সেফটিপিন ভিউ পরিবর্তনের সিগন্যাল পাঠানো
+  sendPeerAction({ type: 'SWITCH_SP_VIEW', view: viewName });
+}
+
+/* সেফটিপিন স্টপওয়াচ হুক সহ */
+const origStartSpStopwatch = startSpStopwatch;
+startSpStopwatch = function() {
+  origStartSpStopwatch();
+  if (spIsRunning) {
+    sendPeerAction({
+      type: 'SP_START',
+      name: document.getElementById('spPName').value,
+      age: document.getElementById('spPAge').value
+    });
+  }
+};
+
+const origStopSpStopwatch = stopSpStopwatch;
+stopSpStopwatch = function() {
+  origStopSpStopwatch();
+  sendPeerAction({ type: 'SP_STOP' });
+};
+
+const origResetSpStopwatch = resetSpStopwatch;
+resetSpStopwatch = function() {
+  origResetSpStopwatch();
+  sendPeerAction({ type: 'SP_RESET' });
+};
+
 let currentSetIndex = 0;
 let currentTimer = null;
 let currentPhase = 'idle';
@@ -1432,7 +1485,7 @@ let answeredWords = new Set();
 
 let recallStartTime = 0;
 let recallElapsedMs = 0;
-  let lastWordTimeTakenMs = 0;
+let lastWordTimeTakenMs = 0;
 let lastTickSecond = -1;
 
 /* ডেটাস্টোর */
@@ -2572,7 +2625,7 @@ function sendPeerAction(act) {
   }
 }
 
-// ল্যাপটপে লাইভ সংকেত অনুযায়ী গেমবোর্ড চালানো
+// ল্যাপটপে লাইভ সংকেত অনুযায়ী গেমবোর্ড চালানো
 function handleLivePeerAction(act) {
   if (act.type === 'WORD_CLICK') {
     const tiles = document.querySelectorAll('#wordsContainer .word-tile');
@@ -2597,11 +2650,26 @@ function handleLivePeerAction(act) {
     spinLuckySet(act.targetSet);
   } else if (act.type === 'SWITCH_VIEW') {
     switchView(act.view);
-    } else if (act.type === 'SHOW_SUMMARY') {
+  } else if (act.type === 'SHOW_SUMMARY') {
     pendingViewAfterSummary = act.nextView;
     showRoundSummaryModal(act.data);
   } else if (act.type === 'CLOSE_SUMMARY') {
     document.getElementById('roundSummaryModal').style.display = 'none';
+  } else if (act.type === 'OPEN_SAFETY_PIN') {
+    startSafetyPinGameView();
+  } else if (act.type === 'BACK_HOME') {
+    backToHomeFromSafetyPin();
+    backToHomeScreen();
+  } else if (act.type === 'SWITCH_SP_VIEW') {
+    switchSpView(act.view);
+  } else if (act.type === 'SP_START') {
+    document.getElementById('spPName').value = act.name;
+    document.getElementById('spPAge').value = act.age;
+    startSpStopwatch();
+  } else if (act.type === 'SP_STOP') {
+    stopSpStopwatch();
+  } else if (act.type === 'SP_RESET') {
+    resetSpStopwatch();
   }
 }
 
@@ -2652,7 +2720,6 @@ switchView = function(viewName) {
   origSwitchView(viewName);
   sendPeerAction({ type: 'SWITCH_VIEW', view: viewName });
 };
-
 // ২. স্কোর সেভ বা ডাটা বদলালে ফায়ারবেসে পুশ এবং ল্যাপটপ স্ক্রিন সিঙ্ক
 const origSavePlayerScore = savePlayerScore;
 savePlayerScore = function() {
