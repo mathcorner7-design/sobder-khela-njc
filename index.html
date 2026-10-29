@@ -1412,13 +1412,17 @@ function promptClearSpData() {
     updateSpLeaderboard();
     updateSpFinalWinners();
 
-    // ফায়ারবেসে শুধুমাত্র সেফটিপিন খেলার ডেটা খালি করা (শব্দ খেলা অক্ষত থাকবে)
+    // ফায়ারবেস থেকে সেফটিপিনের ডাটা স্থায়ীভাবে মুছে ফেলা ও সিঙ্ক করা
     if (fbDb) {
       fbDb.ref('khela_hybrid_data').update({
-        spMainLeaderboard: [],
-        spFinalWinners: []
+        spMainLeaderboard: null,
+        spFinalWinners: null
       });
     }
+
+    showToast("সেফটিপিন খেলার সমস্ত ডাটা মুছে ফেলা হয়েছে");
+  });
+}
 
     showToast("সেফটিপিন খেলার সমস্ত ডাটা মুছে ফেলা হয়েছে");
   });
@@ -1428,18 +1432,22 @@ function promptClearSpData() {
    ======================================================== */
 function openSafetyPinMenuModal() {
   document.getElementById('safetyPinMenuModal').style.display = 'flex';
+  sendPeerAction({ type: 'OPEN_SP_MENU' });
 }
 
 function closeSafetyPinMenuModal() {
   document.getElementById('safetyPinMenuModal').style.display = 'none';
+  sendPeerAction({ type: 'CLOSE_SP_MENU' });
 }
 
 function openSpRulesModal() {
   document.getElementById('spRulesModal').style.display = 'flex';
+  sendPeerAction({ type: 'OPEN_SP_RULES' });
 }
 
 function closeSpRulesModal() {
   document.getElementById('spRulesModal').style.display = 'none';
+  sendPeerAction({ type: 'CLOSE_SP_RULES' });
 }
 
 function startSafetyPinGameView() {
@@ -2700,6 +2708,14 @@ function handleLivePeerAction(act) {
   } else if (act.type === 'SP_RESET') {
     resetSpStopwatch();
   }
+  } else if (act.type === 'OPEN_SP_MENU') {
+    document.getElementById('safetyPinMenuModal').style.display = 'flex';
+  } else if (act.type === 'CLOSE_SP_MENU') {
+    document.getElementById('safetyPinMenuModal').style.display = 'none';
+  } else if (act.type === 'OPEN_SP_RULES') {
+    document.getElementById('spRulesModal').style.display = 'flex';
+  } else if (act.type === 'CLOSE_SP_RULES') {
+    document.getElementById('spRulesModal').style.display = 'none';
 }
 
 /* ================= মূল ফাংশনে হুক সংযুক্ত করা ================= */
