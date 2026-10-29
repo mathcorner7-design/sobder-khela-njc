@@ -878,6 +878,33 @@
   </div>
 </div>
 
+    <style>
+  /* প্রজেক্টরে বড় দেখানোর জন্য সেফটিপিন নিয়মাবলী বক্স ফিক্স */
+  #spRulesModal .modal-box {
+    max-width: 850px !important;
+    width: 92% !important;
+    padding: 30px !important;
+    background: linear-gradient(135deg, #2b0b0b, #150303) !important;
+    border: 2.5px solid var(--gold) !important;
+    box-shadow: 0 0 50px rgba(245, 175, 25, 0.4) !important;
+  }
+  #spRulesModal .modal-box h3 {
+    font-size: 1.8rem !important;
+    color: var(--gold) !important;
+  }
+  #spRulesModal .modal-box div[style*="max-height"] {
+    max-height: 50vh !important;
+    font-size: 1.25rem !important;
+    line-height: 1.8 !important;
+    padding: 20px !important;
+    background: #1a0505 !important;
+    border: 1.5px solid #792525 !important;
+  }
+  #spRulesModal .modal-box button.btn {
+    font-size: 1.15rem !important;
+    padding: 14px !important;
+  }
+</style>
 <!-- 📜 নিয়মাবলী পপআপ বক্স (স্ক্রোল করার ব্যবস্থা সহ) -->
 <div id="spRulesModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 26000; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(5px);">
   <div class="modal-box" style="max-width: 420px; width: 100%; text-align: left; padding: 20px;">
@@ -1193,7 +1220,7 @@ function updateSpDisplay(ms) {
   document.getElementById('spTimerDisplay').textContent = `${minStr}:${secStr}.${msStr}`;
 }
 
-/* ৪. স্কোর সেভ করে লিডারবোর্ডে পাঠানো (কম সময় উপরে যাবে) */
+/* ৪. স্কোর সেভ করে লিডারবোর্ডে পাঠানো এবং ফায়ারবেসে সিঙ্ক করা */
 function saveSpScore() {
   const name = document.getElementById('spPName').value.trim();
   const age = document.getElementById('spPAge').value.trim() || "--";
@@ -1212,13 +1239,19 @@ function saveSpScore() {
 
   spMainLeaderboard.push(entry);
   
-  /* উর্ধ্বক্রম বা Ascending Order (কম সময় যার, সে সবার আগে থাকবে) */
+  /* উর্ধ্বক্রম বা Ascending Order (কম সময় যার, সে সবার আগে থাকবে) */
   spMainLeaderboard.sort((a, b) => a.timeTaken - b.timeTaken);
 
   localStorage.setItem('khela_sp_main_lb_v1', JSON.stringify(spMainLeaderboard));
+  
+  // ফায়ারবেসে ডেটা পুশ করা যাতে অন্য ডিভাইসেও দেখা যায়
+  if (typeof pushDataToFirebase === 'function') {
+    pushDataToFirebase();
+  }
+
   showToast(`✅ ${name}-এর স্কোর সংরক্ষিত (${spFinalSeconds}s)!`);
 
-  // ইনপুট ও টাইমার পরিষ্কার করে লিডারবোর্ডে চলে যাওয়া
+  // ইনপুট ও টাইমার পরিষ্কার করে লিডারবোর্ডে চলে যাওয়া
   document.getElementById('spPName').value = "";
   document.getElementById('spPAge').value = "";
   resetSpStopwatch();
@@ -1260,7 +1293,7 @@ function updateSpLeaderboard() {
   });
 }
 
-/* ৬. সরাসরি ফাইনাল বিজয়ী তালিকায় পাঠানো */
+/* ৬. সরাসরি ফাইনাল বিজয়ী তালিকায় পাঠানো (স্মৃতির খেলার আদলে নিখুঁত লজিক) */
 function assignSpFinalRank(index) {
   const player = spMainLeaderboard[index];
   const selectElem = document.getElementById(`sp_pos_${index}`);
@@ -1272,8 +1305,25 @@ function assignSpFinalRank(index) {
     // চেক করা যে ওই স্থান আগে থেকেই বুক করা আছে কিনা
     const existing = spFinalWinners.find(w => w.assignedRank === targetRank);
     if (existing) {
-      showToast(`❌ ${targetRank}ম স্থানটি ইতিমধ্যেই ${existing.name}-কে দেওয়া আছে!`);
+      showToast(`❌ ${targetRank}ম স্থানটি ইতিমধ্যেই ${existing.name}-কে দেওয়া আছে!`);
       return;
+    }
+
+    // সিকোয়েন্স চেক (১ম না দিয়ে ২য় বা ৩য় দেওয়া আটকানো)
+    if (targetRank === 2) {
+      const hasRank1 = spFinalWinners.some(w => w.assignedRank === 1);
+      if (!hasRank1) {
+        showToast(`❌ আগে ১ম স্থান নির্ধারণ করুন!`);
+        return;
+      }
+    }
+    if (targetRank === 3) {
+      const hasRank1 = spFinalWinners.some(w => w.assignedRank === 1);
+      const hasRank2 = spFinalWinners.some(w => w.assignedRank === 2);
+      if (!hasRank1 || !hasRank2) {
+        showToast(`❌ আগে ১ম ও ২য় স্থান নির্ধারণ করুন!`);
+        return;
+      }
     }
 
     spFinalWinners = spFinalWinners.filter(w => w.name !== player.name);
@@ -1287,7 +1337,12 @@ function assignSpFinalRank(index) {
   spMainLeaderboard.splice(index, 1);
   localStorage.setItem('khela_sp_main_lb_v1', JSON.stringify(spMainLeaderboard));
 
-  showToast(`${player.name} ${position === "out" ? "বাদ পড়েছেন" : position + " নম্বর স্থান পেয়েছেন"}!`);
+  // ফায়ারবেসে লাইভ ডাটা পুশ করা
+  if (typeof pushDataToFirebase === 'function') {
+    pushDataToFirebase();
+  }
+
+  showToast(`${player.name} ${position === "out" ? "বাদ পড়েছেন" : position + " নম্বর স্থান পেয়েছেন"}!`);
   switchSpView('final');
   updateSpFinalWinners();
 }
