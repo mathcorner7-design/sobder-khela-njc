@@ -811,6 +811,46 @@
     </div>
   </div>
 
+  <div class="app-container">
+  <div id="appToast"></div>
+
+  <!-- হোম স্ক্রিন / মেইন মেনু ভিউ -->
+  <div id="homeScreenView" class="card" style="background: linear-gradient(135deg, #2b0808, #120303, #3a0007); border: 2.5px solid var(--gold); text-align: center; padding: 25px 15px; box-shadow: 0 0 35px rgba(245, 175, 25, 0.35);">
+    
+    <!-- রজত জয়ন্তী বিশেষ আকর্ষণ ব্যানার -->
+    <div style="background: linear-gradient(135deg, rgba(195,20,50,0.4), rgba(245,175,25,0.25)); border: 2px solid var(--gold); border-radius: 14px; padding: 18px 10px; margin-bottom: 22px; box-shadow: 0 4px 20px rgba(0,0,0,0.6);">
+      <h2 style="color: var(--gold); font-size: 1.4rem; font-weight: 950; text-shadow: 0 2px 8px rgba(0,0,0,0.9); line-height: 1.4; letter-spacing: 0.5px;">
+        নিউ ঝালাপালা কমিটি প্রযোজিত রজত জয়ন্তী উপলক্ষে আয়োজিত বিশেষ আকর্ষণীয় খেলা
+      </h2>
+    </div>
+
+    <p style="color: #ffd89b; font-size: 0.95rem; margin-bottom: 20px; font-weight: bold; letter-spacing: 1px;">নিচের যেকোনো একটি খেলায় প্রবেশ করুন:</p>
+
+    <!-- তিনটি গেমের অপশন বাটন -->
+    <div style="display: flex; flex-direction: column; gap: 14px; max-width: 400px; margin: 0 auto 20px auto;">
+      <button class="btn" onclick="showToast('সেফটিপিনের মালা ফুটলে আঙুল জ্বালা - শীঘ্রই আসছে!')" style="background: linear-gradient(135deg, #8e2de2, #4a00e0); font-size: 1.05rem; padding: 15px; border-radius: 12px; border: 1.5px solid #d4af37; box-shadow: 0 4px 15px rgba(142, 45, 226, 0.5);">
+        🪡 সেফটিপিনের মালা ফুটলে আঙুল জ্বালা
+      </button>
+
+      <button class="btn" onclick="openSmritirKhela()" style="background: linear-gradient(135deg, #f5af19, #e65c00); font-size: 1.05rem; padding: 15px; border-radius: 12px; border: 1.5px solid #fff; color: #120303; box-shadow: 0 4px 15px rgba(245, 175, 25, 0.5); font-weight: 900;">
+        🧠 স্মৃতির খেলা শব্দের মেলা
+      </button>
+
+      <button class="btn" onclick="showToast('শব্দ ছবির ধাঁধা - শীঘ্রই আসছে!')" style="background: linear-gradient(135deg, #00b09b, #96c93d); font-size: 1.05rem; padding: 15px; border-radius: 12px; border: 1.5px solid #d4af37; box-shadow: 0 4px 15px rgba(0, 176, 155, 0.5); color: #052b0d;">
+        🖼️ শব্দ ছবির ধাঁধা
+      </button>
+    </div>
+    <!-- হোম স্ক্রিনের নিচে ডান কোণায় ডিভাইস ও মিরর সেটিংস বোতাম -->
+    <div style="display: flex; justify-content: flex-end; margin-top: 15px;">
+      <button onclick="openDeviceModal()" style="background: rgba(36, 10, 10, 0.95); border: 1.5px solid var(--gold); color: var(--gold); padding: 8px 14px; border-radius: 20px; font-size: 0.85rem; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.7); display: flex; align-items: center; gap: 6px;">
+        🖥️ স্ক্রিন ও মিরর কাস্ট সেটিংস
+      </button>
+    </div>
+  </div> <!-- #homeScreenView এর শেষ ট্যাগ -->
+  </div>
+
+  <!-- আসল গেম ভিউ (শুরুতে ঢাকা থাকবে, 'স্মৃতির খেলা' ক্লিক করলে খুলবে) -->
+  <div id="gameMainWrapper" style="display: none;">
   <header>
     <button class="mode-switch-btn" onclick="openDeviceModal()">🖥️</button>
     <h1>🪔 স্মৃতির খেলা শব্দের মেলা 🪔</h1>
@@ -917,9 +957,23 @@
     <h3 style="color: var(--gold); text-align: center; margin-bottom: 10px;">🌟 চূড়ান্ত ফলাফল ও বিজয়ী তালিকা 🌟</h3>
     <div id="finalWinnersContainer"></div>
   </div>
+    <!-- হোম স্ক্রিনে ফিরে যাওয়ার বাটন -->
+    <button class="btn btn-warning" style="margin-top: 15px; padding: 10px; font-weight: bold;" onclick="backToHomeScreen()">🏠 হোম মেনুতে ফিরে যান</button>
+  </div>
 </div>
 
 <script>
+  // হোম স্ক্রিন থেকে 'স্মৃতির খেলা শব্দের মেলা' খোলার ফাংশন
+function openSmritirKhela() {
+  document.getElementById('homeScreenView').style.display = 'none';
+  document.getElementById('gameMainWrapper').style.display = 'block';
+}
+
+// গেমের ভেতর থেকে হোম স্ক্রিনে ফিরে যাওয়ার ফাংশন
+function backToHomeScreen() {
+  document.getElementById('gameMainWrapper').style.display = 'none';
+  document.getElementById('homeScreenView').style.display = 'block';
+}
 /* স্ক্রিন মোড নির্বাচন লজিক */
 function applyScreenMode(mode) {
   document.body.className = `mode-${mode}`;
