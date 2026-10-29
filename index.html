@@ -33,31 +33,26 @@
     --grid-cols: repeat(4, 1fr);
     --base-font: 17px;
   }
-  /* ল্যাপটপ / প্রজেক্টর মোড: পুরো স্ক্রিনের উচ্চতা ও চওড়ায় সমানভাবে ছড়িয়ে যাওয়া */
+  /* ল্যাপটপ / প্রজেক্টর মোড: ফিক্সড লেআউট যাতে স্ক্রিন নেমে না যায় */
   body.mode-tv {
     --container-max: 1250px;
     --grid-cols: repeat(4, 1fr);
     --base-font: 18px;
-    height: 100vh;
-    padding: 12px 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: stretch;
+    min-height: 100vh;
+    padding: 20px;
+    display: block;
     overflow-y: auto;
   }
   body.mode-tv .app-container {
-    flex: 1;
+    width: 100%;
+    max-width: var(--container-max);
+    margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    height: 100%;
+    gap: 15px;
   }
   body.mode-tv .card {
-    flex: 1;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
+    padding: 25px;
   }
   body.mode-tv .word-tile {
     min-height: 75px;
@@ -66,15 +61,6 @@
   body.mode-tv .timer-circle {
     font-size: 1.8rem;
     padding: 6px 18px;
-  }
-  /* ল্যাপটপ মোডে হোম স্ক্রিন এবং গেম র‍্যাপার ফিক্স */
-  body.mode-tv #homeScreenView,
-  body.mode-tv #gameMainWrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    box-sizing: border-box;
   }
 
   /* রাউন্ড সামারি পপআপ: মোবাইলে স্বাভাবিক ও কমপ্যাক্ট সাইজ */
