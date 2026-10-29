@@ -1057,17 +1057,41 @@ function switchSpView(viewName) {
   document.getElementById('spTabRankBtn').classList.toggle('active', viewName === 'rank');
   document.getElementById('spTabFinalBtn').classList.toggle('active', viewName === 'final');
 }
-  // হোম স্ক্রিন থেকে 'স্মৃতির খেলা শব্দের মেলা' খোলার ফাংশন
+ // হোম স্ক্রিন থেকে 'স্মৃতির খেলা শব্দের মেলা' খোলার ফাংশন
 function openSmritirKhela() {
   document.getElementById('homeScreenView').style.display = 'none';
   document.getElementById('gameMainWrapper').style.display = 'block';
+  
+  // মোবাইল থেকে ল্যাপটপে শব্দ খেলা খোলার সিগন্যাল পাঠানো
+  sendPeerAction({ type: 'OPEN_SMRITI' });
 }
 
-// গেমের ভেতর থেকে হোম স্ক্রিনে ফিরে যাওয়ার ফাংশন
+// গেমের ভেতর থেকে হোম স্ক্রিনে ফিরে যাওয়ার ফাংশন
 function backToHomeScreen() {
   document.getElementById('gameMainWrapper').style.display = 'none';
   document.getElementById('homeScreenView').style.display = 'block';
+  
+  // মোবাইল থেকে ল্যাপটপে হোম মেনুতে ফেরার সিগন্যাল পাঠানো
+  sendPeerAction({ type: 'BACK_HOME' });
 }
+
+function startSafetyPinGameView() {
+  document.getElementById('safetyPinMenuModal').style.display = 'none';
+  document.getElementById('homeScreenView').style.display = 'none';
+  document.getElementById('safetyPinGameWrapper').style.display = 'block';
+  
+  // মোবাইল থেকে ল্যাপটপে সেফটিপিন গেম খোলার সিগন্যাল পাঠানো
+  sendPeerAction({ type: 'OPEN_SAFETY_PIN' });
+}
+
+function backToHomeFromSafetyPin() {
+  document.getElementById('safetyPinGameWrapper').style.display = 'none';
+  document.getElementById('homeScreenView').style.display = 'block';
+  
+  // মোবাইল থেকে ল্যাপটপে হোম মেনুতে ফেরার সিগন্যাল পাঠানো
+  sendPeerAction({ type: 'BACK_HOME' });
+}
+
 /* স্ক্রিন মোড নির্বাচন লজিক */
 function applyScreenMode(mode) {
   document.body.className = `mode-${mode}`;
@@ -2625,7 +2649,6 @@ function sendPeerAction(act) {
   }
 }
 
-// ল্যাপটপে লাইভ সংকেত অনুযায়ী গেমবোর্ড চালানো
 function handleLivePeerAction(act) {
   if (act.type === 'WORD_CLICK') {
     const tiles = document.querySelectorAll('#wordsContainer .word-tile');
@@ -2656,10 +2679,16 @@ function handleLivePeerAction(act) {
   } else if (act.type === 'CLOSE_SUMMARY') {
     document.getElementById('roundSummaryModal').style.display = 'none';
   } else if (act.type === 'OPEN_SAFETY_PIN') {
-    startSafetyPinGameView();
+    document.getElementById('safetyPinMenuModal').style.display = 'none';
+    document.getElementById('homeScreenView').style.display = 'none';
+    document.getElementById('safetyPinGameWrapper').style.display = 'block';
+  } else if (act.type === 'OPEN_SMRITI') {
+    document.getElementById('homeScreenView').style.display = 'none';
+    document.getElementById('gameMainWrapper').style.display = 'block';
   } else if (act.type === 'BACK_HOME') {
-    backToHomeFromSafetyPin();
-    backToHomeScreen();
+    document.getElementById('safetyPinGameWrapper').style.display = 'none';
+    document.getElementById('gameMainWrapper').style.display = 'none';
+    document.getElementById('homeScreenView').style.display = 'block';
   } else if (act.type === 'SWITCH_SP_VIEW') {
     switchSpView(act.view);
   } else if (act.type === 'SP_START') {
