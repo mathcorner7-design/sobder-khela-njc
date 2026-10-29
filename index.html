@@ -1293,7 +1293,7 @@ function updateSpLeaderboard() {
   });
 }
 
-/* ৬. সরাসরি ফাইনাল বিজয়ী তালিকায় পাঠানো (স্মৃতির খেলার আদলে নিখুঁত লজিক) */
+/* ৬. সেফটিপিন খেলার জন্য নিখুঁত ফাইনাল র‍্যাংক লজিক */
 function assignSpFinalRank(index) {
   const player = spMainLeaderboard[index];
   const selectElem = document.getElementById(`sp_pos_${index}`);
@@ -1302,28 +1302,11 @@ function assignSpFinalRank(index) {
   if (position !== "out") {
     const targetRank = parseInt(position);
     
-    // চেক করা যে ওই স্থান আগে থেকেই বুক করা আছে কিনা
+    // চেক করা যে ওই স্থান আগে থেকেই অন্য কেউ নিয়েছে কিনা
     const existing = spFinalWinners.find(w => w.assignedRank === targetRank);
     if (existing) {
       showToast(`❌ ${targetRank}ম স্থানটি ইতিমধ্যেই ${existing.name}-কে দেওয়া আছে!`);
       return;
-    }
-
-    // সিকোয়েন্স চেক (১ম না দিয়ে ২য় বা ৩য় দেওয়া আটকানো)
-    if (targetRank === 2) {
-      const hasRank1 = spFinalWinners.some(w => w.assignedRank === 1);
-      if (!hasRank1) {
-        showToast(`❌ আগে ১ম স্থান নির্ধারণ করুন!`);
-        return;
-      }
-    }
-    if (targetRank === 3) {
-      const hasRank1 = spFinalWinners.some(w => w.assignedRank === 1);
-      const hasRank2 = spFinalWinners.some(w => w.assignedRank === 2);
-      if (!hasRank1 || !hasRank2) {
-        showToast(`❌ আগে ১ম ও ২য় স্থান নির্ধারণ করুন!`);
-        return;
-      }
     }
 
     spFinalWinners = spFinalWinners.filter(w => w.name !== player.name);
@@ -1334,16 +1317,18 @@ function assignSpFinalRank(index) {
     localStorage.setItem('khela_sp_final_win_v1', JSON.stringify(spFinalWinners));
   }
 
+  // লিডারবোর্ড থেকে প্রতিযোগীকে সরিয়ে দেওয়া
   spMainLeaderboard.splice(index, 1);
   localStorage.setItem('khela_sp_main_lb_v1', JSON.stringify(spMainLeaderboard));
 
-  // ফায়ারবেসে লাইভ ডাটা পুশ করা
+  // ফায়ারবেসে লাইভ ডাটা পুশ করা যাতে অন্য ডিভাইসেও আপডেট হয়
   if (typeof pushDataToFirebase === 'function') {
     pushDataToFirebase();
   }
 
   showToast(`${player.name} ${position === "out" ? "বাদ পড়েছেন" : position + " নম্বর স্থান পেয়েছেন"}!`);
   switchSpView('final');
+  updateSpLeaderboard();
   updateSpFinalWinners();
 }
 
@@ -2431,6 +2416,8 @@ function pushDataToFirebase() {
     mainLeaderboard: cleanForFirebase(mainLeaderboard),
     tieLeaderboard: cleanForFirebase(tieLeaderboard),
     finalWinners: cleanForFirebase(finalWinners),
+    spMainLeaderboard: cleanForFirebase(spMainLeaderboard),
+    spFinalWinners: cleanForFirebase(spFinalWinners),
     lastUpdate: Date.now()
   });
 }
@@ -2440,6 +2427,7 @@ function listenFirebaseData() {
   fbDb.ref('khela_hybrid_data').on('value', (snapshot) => {
     const val = snapshot.val();
     if (val) {
+      // স্মৃতির খেলা ডেটা সিঙ্ক
       mainLeaderboard = (val.mainLeaderboard || []).map(p => ({
         ...p,
         tieScore: (p.tieScore === "" || p.tieScore === undefined) ? null : p.tieScore,
@@ -2463,16 +2451,31 @@ function listenFirebaseData() {
       }));
       localStorage.setItem('khela_final_win_v9', JSON.stringify(finalWinners));
       updateFinalWinners();
+
+      // সেফটিপিন খেলা ডেটা সিঙ্ক
+      if (val.spMainLeaderboard) {
+        spMainLeaderboard = val.spMainLeaderboard;
+        localStorage.setItem('khela_sp_main_lb_v1', JSON.stringify(spMainLeaderboard));
+        updateSpLeaderboard();
+      }
+      if (val.spFinalWinners) {
+        spFinalWinners = val.spFinalWinners;
+        localStorage.setItem('khela_sp_final_win_v1', JSON.stringify(spFinalWinners));
+        updateSpFinalWinners();
+      }
+
     } else {
       mainLeaderboard = [];
       tieLeaderboard = [];
       finalWinners = [];
-      localStorage.removeItem('khela_main_lb_v9');
-      localStorage.removeItem('khela_tie_lb_v9');
-      localStorage.removeItem('khela_final_win_v9');
+      spMainLeaderboard = [];
+      spFinalWinners = [];
+      localStorage.clear();
       updateMainLeaderboard();
       updateTieBoard();
       updateFinalWinners();
+      updateSpLeaderboard();
+      updateSpFinalWinners();
     }
   });
 }
